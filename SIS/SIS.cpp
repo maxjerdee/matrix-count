@@ -42,7 +42,6 @@ double log_factorial2(int n);
 
 // Write samples to file
 
-
 // Printing quantities (for debugging)
 void print(std::vector<std::vector<int>> table);
 void print(std::vector<std::vector<double>> table);
