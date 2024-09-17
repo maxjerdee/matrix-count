@@ -51,7 +51,7 @@ double log_Omega_unconstrained_diagonal(std::vector<int> ks){
 double alpha_unconstrained(int n, int m){
     double numerator = 2 * m * (n * n + 2 * n + 2) - (n + 1) * (n + 2);
     double denominator = 2 * m * (n + 2) + (n + 1) * (n - 2);
-    double result = numerator / denominator;
+    double result = numerator / (denominator + ALPHA_EPSILON);
     return result;
 }
 
@@ -68,7 +68,7 @@ double alpha_constrained(int n, int m, int m_in){
                               mu * (-1 + n) * (4 * m * (2 + (-1 + n) * n) + n * (6 + (-1 + n) * n)));
 
     // Calculate the result
-    double result = numerator / denominator;
+    double result = numerator / (denominator + ALPHA_EPSILON);
     return result;
 }
 
@@ -81,6 +81,6 @@ double alpha_zero_diagonal(int n, int m){
     double denominator = 2 + 2 * m * (-2 + n) - n - n * n;
 
     // Calculate the result
-    double result = numerator / denominator;
+    double result = numerator / (denominator + ALPHA_EPSILON);
     return result;
 }

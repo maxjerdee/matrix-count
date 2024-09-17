@@ -11,7 +11,7 @@ double log_binom(double a, double b);
 double log_sum_exp(double a, double b);
 double log_sum_exp(std::vector<double> xs);
 
-int sample_log_weights(std::vector<double> log_weights);
+std::pair<int,double> sample_log_weights(std::vector<double> log_weights);
 
 double log_factorial(int n);
 double log_factorial2(int n);

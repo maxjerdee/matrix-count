@@ -10,7 +10,10 @@
 
 // Logarithm of the binomial coefficient
 double log_binom(double a, double b){
-    return std::lgamma(a + 1) - std::lgamma(b + 1) - std::lgamma(a - b + 1);
+  if(b == 0){
+    return 0;
+  }
+  return std::lgamma(a + 1) - std::lgamma(b + 1) - std::lgamma(a - b + 1);
 }
 
 // Logarithm of the factorial
@@ -44,27 +47,37 @@ double log_sum_exp(std::vector<double> xs){
     return xs_max + std::log(result);
 }
 
-// Sample from a set of outcomes given log weights (not necessarily normalized)
-int sample_log_weights(std::vector<double> log_weights){
+// Sample from a set of outcomes given log weights (not necessarily normalized), also return the entropy of that choice
+std::pair<int,double> sample_log_weights(std::vector<double> log_weights){
     // Normalize the weights
     double log_sum = log_sum_exp(log_weights);
     std::vector<double> weights;
+    weights.reserve(log_weights.size()); // Reserve memory for weights
     for(double log_weight : log_weights){
         weights.push_back(std::exp(log_weight - log_sum));
     }
 
     // Sample according to these weights
     double p = std::rand() / (RAND_MAX + 1.0);
-    double culm_weight = 0;
-    for(int i = 0; i < weights.size(); i++){
+    double culm_weight = 0.0;
+    for (int i = 0; i < weights.size(); ++i) {
         culm_weight += weights[i];
-        if(p <= culm_weight){
-            return i;
+        if (p <= culm_weight) {
+            return std::make_pair(i, -std::log(weights[i]));
         }
     }
+    // If no match found, return the last element as a fallback (due to rounding issues)
+    return std::make_pair(weights.size() - 1, -std::log(weights.back()));
 }
 
 // Printing functions (useful for debugging)
+// Print function which calls print on all arguments
+// template <typename T, typename... Args>
+// void print(T t, Args... args){
+//     std::cout << t << " ";
+//     print(args...);
+// }
+
 void print(std::vector<std::vector<int>> table) {
   for(int i = 0; i < table.size(); i++){
     for(int j = 0; j < table[0].size(); j++){
