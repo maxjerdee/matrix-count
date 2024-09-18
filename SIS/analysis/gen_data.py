@@ -15,7 +15,10 @@ def generate_margin(m, n):
         raise ValueError("m must be greater than or equal to n")
     ps = np.random.dirichlet(np.ones(n))
     # Sample from a multinomial
-    return np.random.multinomial(2*m - n, ps) + 1
+    ks = np.random.multinomial(2*m - n, ps) + 1
+    # Sort in ascending order (makes the SIS more efficient)
+    ks = np.sort(ks)
+    return ks
 
 # Numebr of margins to generate for each combination
 num_trials = 10

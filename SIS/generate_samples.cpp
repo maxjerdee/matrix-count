@@ -35,11 +35,12 @@ int main(int argc, char *argv[]) {
     printf("m_in = %d\n", m_in);
 
     // Compute the linear time estimate
+    double log_Omega;
     if(m_in == -1){
-        double log_Omega = log_Omega_unconstrained_diagonal(ks);
+        log_Omega = log_Omega_unconstrained_diagonal(ks);
         printf("Linear time estimate: %f\n", log_Omega);
     }else{
-        double log_Omega = log_Omega_fixed_diagonal(ks, m_in);
+        log_Omega = log_Omega_fixed_diagonal(ks, m_in);
         printf("Linear time estimate: %f\n", log_Omega);
     }
 
@@ -64,8 +65,16 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    // Open output file
+    
+    // Open output file, clear and then append live
     std::ofstream outfile(output_filename);
+    if (!outfile) {
+        std::cerr << "Error: unable to open file " << output_filename << std::endl;
+        exit(0);
+    }
+    outfile << std::unitbuf; // Make sure the output is flushed after each write
+
+    outfile << "log_Omega = " << log_Omega << std::endl;
 
     // Start timer for sampling
     auto start = std::chrono::high_resolution_clock::now();
@@ -80,9 +89,10 @@ int main(int argc, char *argv[]) {
         auto [table, entropy] = sample_table(ks, m_in);
         // print("table:");
         // print(table);
-        printf("entropy = %f\n", entropy);
+        // printf("entropy = %f\n", entropy);
         // Write the entropy to the output file
-        outfile << entropy << "\n";
+        outfile << entropy << std::endl;
+        outfile.flush();
     }
 }
 
