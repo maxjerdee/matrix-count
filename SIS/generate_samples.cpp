@@ -90,6 +90,21 @@ int main(int argc, char *argv[]) {
         // print("table:");
         // print(table);
         // printf("entropy = %f\n", entropy);
+
+        // // Write the table
+        // for(int i = 0; i < n; i++){
+        //     for(int j = 0; j < n; j++){
+        //         outfile << table[i][j] << " ";
+        //     }
+        // }
+
+        // int sampled_m_in = 0;
+        // for(int i = 0; i < n; i++){
+        //     sampled_m_in += table[i][i]/2;
+        // }
+        // // Write m_in
+        // outfile << sampled_m_in << " ";
+
         // Write the entropy to the output file
         outfile << entropy << std::endl;
         outfile.flush();

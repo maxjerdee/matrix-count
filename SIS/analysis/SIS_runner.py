@@ -18,11 +18,11 @@ from subprocess import Popen, PIPE
 from threading import Timer
 import sys
 
-# inputs_folder = '../data/test_margins'
-# outputs_folder = '../outputs/test_margins'
+inputs_folder = '../data/test_margins'
+outputs_folder = '../outputs/test_margins'
 
-inputs_folder = '../data/real_degrees/margins'
-outputs_folder = '../outputs/real_degrees'
+# inputs_folder = '../data/real_degrees/margins'
+# outputs_folder = '../outputs/real_degrees'
 
 # ../generate_samples -i ../data/test_margins/margin_0800_020_1.txt -o ../outputs/test_margins/margin_0800_020_1.txt -T 10000 -t 600 
 def process(filename):

@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <vector>
+#include <cstdio>
 
 #include "globals.h"
 #include "estimates.h"
@@ -40,7 +41,7 @@ double log_Omega_unconstrained_diagonal(std::vector<int> ks){
     double alpha = alpha_unconstrained(n, m);
 
     // Calculate the log of the estimate
-    double log_Omega = log_binom(m + n*(n-1)/2 - 1,n*(n-1)/2 - 1) - log_binom(2*m + n*alpha - 1, n*alpha - 1);
+    double log_Omega = log_binom(m + n*(n+1)/2 - 1,n*(n+1)/2 - 1) - log_binom(2*m + n*alpha - 1, n*alpha - 1);
     for(int i = 0; i < n; i++){
         log_Omega += log_binom(ks[i] + alpha - 1, alpha - 1);
     }

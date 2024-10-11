@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 
 input_csv = "test_margins.csv"
-# input_csv = "test_margins_2.csv"
+# # input_csv = "test_margins_2.csv"
 
 m_vals = 100*2**np.array([1, 2, 3, 4, 5, 6]) # 200, 400, 800, 1600, 3200, 6400
 n_vals = 10*2**np.array([1, 2, 3, 4, 5, 6]) # 20, 40, 80, 160, 320, 640
@@ -42,6 +42,7 @@ for row_tuple in results_df.iterrows():
     value = row_tuple[1][results_df.columns.get_loc('value')]
     error = row_tuple[1][results_df.columns.get_loc('error')]
     estimate = row_tuple[1][results_df.columns.get_loc('estimate')]
+    # estimate = row_tuple[1][results_df.columns.get_loc('estimate_3')]
 
 
     m_ind = -1
@@ -56,8 +57,9 @@ for row_tuple in results_df.iterrows():
             break
     print(m_ind,n_ind,filename)
     error_examples[m_ind][n_ind].append((estimate - value)/value)
+    print(value,row_tuple[1][results_df.columns.get_loc('estimate')],row_tuple[1][results_df.columns.get_loc('estimate_3')])
 
-print(error_examples)
+# print(error_examples)
 error_means = np.zeros((len(m_vals),len(n_vals)))
 error_rmses = np.zeros((len(m_vals),len(n_vals)))
 for i in range(len(m_vals)):
@@ -69,7 +71,7 @@ for i in range(len(m_vals)):
             error_means[i][j] = -1
             error_rmses[i][j] = -1
 
-print(error_means)
+# print(error_means)
 # Grid showing the means and stds on a log scale
 fig, ax = plt.subplots()
 cmap = cm.get_cmap("plasma").copy()  # Can be any colormap that you want after the cm
@@ -84,8 +86,8 @@ ax.set_ylabel('n')
 ax.set_yticks(range(len(n_vals)))
 ax.set_yticklabels(n_vals)
 ax.invert_yaxis()
-ax.set_title('Mean Relative Error in log Omega Estimate')
-plt.savefig('rmse_error.png')
+ax.set_title('Relative RMSE in log Omega Estimate')
+plt.savefig(f'{input_csv[:-4]}_rmse_error.png')
 
 
 
@@ -104,7 +106,7 @@ ax.set_yticks(range(len(n_vals)))
 ax.set_yticklabels(n_vals)
 ax.invert_yaxis()
 ax.set_title('Mean Relative Error in log Omega Estimate')
-plt.savefig('mean_error.png')
+plt.savefig(f'{input_csv[:-4]}_mean_error.png')
 
 # extras = ['SIS','logOmega']
 # for e in extras:
