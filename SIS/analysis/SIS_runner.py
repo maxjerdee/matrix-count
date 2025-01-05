@@ -54,4 +54,5 @@ from joblib import Parallel, delayed
 input_files = np.array(input_files)
 input_files.sort()
 
-r = Parallel(n_jobs=36,verbose=10)(delayed(process)(file) for file in input_files)
+r = Parallel(n_jobs=3,verbose=10)(delayed(process)(file) for file in input_files)
+# r = Parallel(n_jobs=36,verbose=10)(delayed(process)(file) for file in input_files)

@@ -5,7 +5,7 @@
 
 import numpy as np
 
-# Generally we are more interested in the constant degree regime anyway (m/n fixed)
+# Generally we are particularly interested in the constant degree regime anyway (m/n fixed)
 m_vals = 100*2**np.array([1, 2, 3, 4, 5, 6]) # 200, 400, 800, 1600, 3200, 6400
 n_vals = 10*2**np.array([1, 2, 3, 4, 5, 6]) # 20, 40, 80, 160, 320, 640
 
