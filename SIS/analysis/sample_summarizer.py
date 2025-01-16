@@ -152,13 +152,13 @@ def fit_alpha(margin_seq, shift):
 # Main program
 ## TODO: change path
 
-margins_folder = "../../data/facebook_friends_test_margins"
-input_folder = "../../outputs/facebook_friends_test_margins"
-output_csv = "results/facebook_friends_test_margins.csv"
+# margins_folder = "../../data/facebook_friends_test_margins"
+# input_folder = "../../outputs/facebook_friends_test_margins"
+# output_csv = "results/facebook_friends_test_margins.csv"
 
-# margins_folder = "../../data/test_margins"
-# input_folder = "../../outputs/test_margins"
-# output_csv = "results/test_margins.csv"
+margins_folder = "../../data/test_margins"
+input_folder = "../../outputs/test_margins"
+output_csv = "results/test_margins.csv"
 
 # margins_folder = "../../data/polbooks_test_margins"
 # input_folder = "../../outputs/polbooks_test_margins"
