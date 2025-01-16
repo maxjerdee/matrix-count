@@ -8,8 +8,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=5000m 
-#SBATCH --time=10:00:00
-#SBATCH --account=ebruch0
+#SBATCH --time=12:00:00
+#SBATCH --account=mejn0
 #SBATCH --partition=standard
 
 /bin/hostname

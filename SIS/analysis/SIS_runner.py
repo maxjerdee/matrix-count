@@ -1,5 +1,6 @@
 # Run the SIS c++ script on the test margins
 
+# Import packages
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -18,12 +19,28 @@ from subprocess import Popen, PIPE
 from threading import Timer
 import sys
 
-inputs_folder = '../data/test_margins'
-outputs_folder = '../outputs/test_margins'
+# Specify working directories
+## TODO: change accordingly
+
+inputs_folder = '../../data/more_verbose_test_margins'
+outputs_folder = '../../outputs/more_verbose_test_margins'
+
+# inputs_folder = '../../data/facebook_friends_test_margins'
+# outputs_folder = '../../outputs/facebook_friends_test_margins'
+
+# inputs_folder = '../../data/test_margins'
+# outputs_folder = '../../outputs/test_margins'
+
+# inputs_folder = '../../data/verbose_test_margins'
+# outputs_folder = '../../outputs/verbose_test_margins'
+
+# inputs_folder = '../../data/polbooks_test_margins'
+# outputs_folder = '../../outputs/polbooks_test_margins'
 
 # inputs_folder = '../data/real_degrees/margins'
 # outputs_folder = '../outputs/real_degrees'
 
+# Run C++ script
 # ../generate_samples -i ../data/test_margins/margin_0800_020_1.txt -o ../outputs/test_margins/margin_0800_020_1.txt -T 10000 -t 600 
 def process(filename):
 

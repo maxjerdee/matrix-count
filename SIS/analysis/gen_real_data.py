@@ -1,8 +1,8 @@
 # Write actual degree sequences to test the performance of the estimate in those cases
 
-degree_sequences_folder = '../data/real_degrees/degreesequences/'
+degree_sequences_folder = '../../data/real_degrees/degreesequences/'
 
-output_folder = '../data/real_degrees/margins'
+output_folder = '../../data/real_degrees/margins'
 
 from os import listdir
 import pandas as pd

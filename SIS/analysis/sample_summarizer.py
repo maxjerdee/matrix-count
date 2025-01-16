@@ -1,12 +1,16 @@
 # Aggregrate the results of the SIS and store the linear time and SIS estimates and error
 
+# Import packages
 import matplotlib.pyplot as plt
 import numpy as np
 from os import listdir
 import pandas as pd
 from math import lgamma
+from scipy.special import gammaln
+from scipy.optimize import minimize
 
-# Linear time estimates
+# Helper functions
+## Linear time estimates
 def log_binom(n,m):
     return lgamma(n+1) - lgamma(m+1) - lgamma(n-m+1)
 
@@ -16,7 +20,7 @@ def alpha_2(m,n):
     result = numerator / denominator
     return result
 
-# Return the two alphas so that the mixed distribution matches the covariances
+## Return the two alphas so that the mixed distribution matches the covariances
 def alpha_3_mixed(m,n):
     term1 = (1 + n) ** 2 * (128 + n * (160 + n * (224 + n * (136 + n * (79 + 8 * n * (3 + n))))))
     term2 = 2 * m * (1 + n) * (256 + n * (576 + n * (768 + n * (729 + n * (439 + 16 * n * (14 + n * (4 + n)))))))
@@ -44,7 +48,7 @@ def alpha_3_mixed(m,n):
 
     return alpha1A, alpha1B, alpha2A, alpha2B
 
-# Return the two alphas so that the mixture matches the 
+## Return the two alphas so that the mixture matches the 
 def alpha_3(m,n):
 
     common_numerator = (
@@ -84,9 +88,7 @@ def log_Omega_2(ks):
     # print(ks, result, alpha)
     return result
 
-# print(log_Omega_2([]))
-
-# overflow protected log_sum_exp
+## Overflow protected log_sum_exp
 def log_sum_exp(x):
     a = np.max(x)
     return a + np.log(np.sum(np.exp(x - a)))
@@ -106,27 +108,87 @@ def log_Omega_3(ks):
     result += log_sum_exp([log_P_plus, log_P_minus])-np.log(2)
     return result
 
-margins_folder = "../data/test_margins"
-input_folder = "../outputs/test_margins"
-output_csv = "test_margins.csv"
+# Compute relative error
+def relative_error(est_val, true_val):
+    return np.abs(est_val - true_val) / true_val
+
+# Define the negative log-likelihood function for the symmetric Dirichlet-Multinomial
+def neg_dirichlet_multinomial_loglik(alpha, x):
+    K = len(x)
+    n = np.sum(x) 
+    alpha = float(alpha)
+    
+    log_lik = (
+        gammaln(K * alpha) 
+        + gammaln(n + 1) 
+        - gammaln(n + K * alpha) 
+        + np.sum(gammaln(x + alpha)) 
+        - K * gammaln(alpha)
+        - np.sum(gammaln(x + 1))
+    )
+    return -log_lik
+
+# Find MLE for alpha
+def fit_alpha(margin_seq, shift):
+    if(shift): ## TODO: shift == False?
+        margin_seq_shifted = [val - 1 for val in margin_seq] # subtract 1 from each entry
+        
+        # Initial guess for alpha
+        initial_alpha = 0.5
+
+        # Minimize the negative log-likelihood to find the MLE of alpha
+        result = minimize(
+            neg_dirichlet_multinomial_loglik,
+            initial_alpha,
+            args=(np.array(margin_seq_shifted),),
+            method="L-BFGS-B",
+            bounds=[(1e-5, None)],  # Ensure alpha stays positive
+        )
+
+        # Extract the MLE for alpha
+        fitted_alpha = result.x[0]
+        return fitted_alpha
+
+# Main program
+## TODO: change path
+
+margins_folder = "../../data/facebook_friends_test_margins"
+input_folder = "../../outputs/facebook_friends_test_margins"
+output_csv = "results/facebook_friends_test_margins.csv"
+
+# margins_folder = "../../data/test_margins"
+# input_folder = "../../outputs/test_margins"
+# output_csv = "results/test_margins.csv"
+
+# margins_folder = "../../data/polbooks_test_margins"
+# input_folder = "../../outputs/polbooks_test_margins"
+# output_csv = "results/polbooks_test_margins.csv"
+
+# margins_folder = "../../data/more_verbose_test_margins"
+# input_folder = "../../outputs/more_verbose_test_margins"
+# output_csv = "results/more_verbose_test_margins.csv"
 
 # margins_folder = "../data/test_margins"
 # input_folder = "../outputs/test_margins_2"
-# output_csv = "test_margins_2.csv"
+# output_csv = "results/test_margins_2.csv"
 
 # margins_folder = "../data/real_degrees/margins" # To obtain m and n
 # input_folder = "../outputs/real_degrees" # To obtain the SIS samples (and the linear time estimate)
-# output_csv = "real_degrees.csv" # To store the estimate, information, and error
+# output_csv = "results/real_degrees.csv" # To store the estimate, information, and error
 
-# filename,m,n,estimate,value,error,num_samples
-# dict to store the results
-results = {"filename":[],"m":[], "n":[], "estimate":[], "estimate_3":[], "value":[], "error":[], "num_samples":[]}
+
+
+
+
+
+# Dataframe for storing related information: filename, m, K, estimate, value, error, fitted_alpha, num_samples
+results = {"filename":[],"m":[], "K":[], "estimate":[], "estimate_3":[], "value":[], "error":[], "error_3":[], "fitted_alpha":[], "num_samples":[]}
 
 files = listdir(input_folder)
 files.sort()
+
 # Load the samples from the SIS
 for filename in files:
-  # print(filename)
   with open(f"{input_folder}/{filename}") as f:
     SIS_samples = []
     for line in f.readlines():
@@ -137,27 +199,33 @@ for filename in files:
     if len(SIS_samples) > 1:
       SIS_samples = np.array(SIS_samples)
       SIS_samples.sort()
-      # print(SIS_samples)
-      # print(log_sum_exp(-SIS_samples))
-      # Read the actual margin from the margins file to get m and n
+      # Read the actual margin from the margins file to get m and K
       with open(f"{margins_folder}/{filename}") as f:
         margin = list(map(int,f.readline().split()))
         m = sum(margin)/2
-        n = len(margin)
+        K = len(margin)
       
       results["filename"].append(filename)
       results["m"].append(m)
-      results["n"].append(n)
+      results["K"].append(K)
+      
+      # Linear estimate
       linear_estimate = log_Omega_2(margin)
       results["estimate"].append(linear_estimate)
-      # if filename[:3] == "9-1":
-      minus_log_mean = log_sum_exp(SIS_samples)-np.log(len(SIS_samples))
       linear_estimate_3 = log_Omega_3(margin)
-      # print(linear_estimate,linear_estimate_3,minus_log_mean)
       results["estimate_3"].append(linear_estimate_3)
-      # print(log_sum_exp(-SIS_samples),minus_log_mean,linear_estimate)
+      
+      # SIS estimate
+      # if filename[:3] == "9-1":
+      minus_log_mean = log_sum_exp(SIS_samples) - np.log(len(SIS_samples))
       results["value"].append(minus_log_mean)
-      results["error"].append(-1) # TODO: compute the approximate error of the SIS estimate
+      
+      # Errors
+      results["error"].append(relative_error(linear_estimate, minus_log_mean)) # TODO: compute the approximate error of the SIS estimate
+      results["error_3"].append(relative_error(linear_estimate_3, minus_log_mean))
+      
+      # Others
+      results["fitted_alpha"].append(fit_alpha(margin, True))
       results["num_samples"].append(len(SIS_samples))
 
       # print(filename)
