@@ -79,19 +79,39 @@ def test_estimate_log_symmetric_matrices_hardcoded():
 
 def test_alpha_2():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
-    assert alpha_2_symmetric_no_block(200,10,diagonal_sum=None, alpha=1.0) == approx(9.75402)
+    assert alpha_symmetric_2(200,10,diagonal_sum=None, alpha=1.0) == approx(9.75402, 0.001)
 
-    
+    assert alpha_symmetric_2(200,10,diagonal_sum=None, alpha=5.0) == approx(41.168, 0.001)
+
+    assert alpha_symmetric_2(200,10,diagonal_sum=100, alpha=1.0) == approx(3.6041, 0.001)
+
+    assert alpha_symmetric_2(200,10,diagonal_sum=100, alpha=5.0) == approx(13.1526, 0.001)
 
     # All good
     assert True
 
 def test_alpha_3():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
-    alpha_pm = alpha_3_symmetric_no_block(200,10,diagonal_sum=None, alpha=1.0)
+    alpha_pm = alpha_symmetric_3(200,10,diagonal_sum=None, alpha=1.0)
     alpha_pm_true = 13.7998, 7.53246
     assert alpha_pm[0] == approx(alpha_pm_true[0], 0.001)
     assert alpha_pm[1] == approx(alpha_pm_true[1], 0.001)
+
+    alpha_pm = alpha_symmetric_3(200,10,diagonal_sum=None, alpha=5.0)
+    alpha_pm_true = 63.6326, 30.4128
+    assert alpha_pm[0] == approx(alpha_pm_true[0], 0.001)
+    assert alpha_pm[1] == approx(alpha_pm_true[1], 0.001)
     
+    # All good
+    assert True
+
+def test_estimate_log_symmetric_matrices():
+    # Test the estimate_log_symmetric_matrices function
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=1, estimate_order=2) == approx(3.65746, 0.001)
+
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=1, estimate_order=3) == approx(3.60119, 0.001)
+
+    assert estimate_log_symmetric_matrices([20, 11, 3], diagonal_sum=20, alpha=1, estimate_order=2) == approx(1.29499, 0.001)
+
     # All good
     assert True

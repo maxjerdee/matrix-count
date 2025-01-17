@@ -1,7 +1,7 @@
 # Checking input validity and hard-code checks for the combinatoric problems
 
-from . import _util
 import numpy as np
+from . import _util
 
 def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
     """Raises AssertionError for invalid inputs
@@ -56,7 +56,6 @@ def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, inde
 def _simplify_input(row_sums, diagonal_sum=None, index_partition=None, block_sums=None):
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
-    n = len(row_sums)
     if index_partition is not None:
         index_partition = index_partition[row_sums != 0]
     row_sums = row_sums[row_sums != 0]
