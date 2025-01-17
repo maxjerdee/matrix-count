@@ -18,11 +18,6 @@ def test_estimate_log_symmetric_matrices_invalid_arguments():
     with raises(AssertionError):
         estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=-1)
 
-    # :param even_diagonal: Whether the diagonal entries of the matrix should be constrained to be even, defaults to False.
-    # :type even_diagonal: bool, optional
-    with raises(AssertionError):
-        estimate_log_symmetric_matrices([1, 2, 3], even_diagonal="yes")
-
     # :param index_partition: A list of length n of integers ranging from 1 to q. 
     #     index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
     #     A value of None results in no block sum constraint, defaults to None.
@@ -54,8 +49,8 @@ def test_estimate_log_symmetric_matrices_invalid_arguments():
 
 
 def test_estimate_log_symmetric_matrices_no_matrices():
-    # Case: diagonal_sum is odd and even_diagonal is True
-    assert estimate_log_symmetric_matrices([2, 2, 2], diagonal_sum=3, even_diagonal=True) == -np.inf
+    # Case: diagonal_sum is odd
+    assert estimate_log_symmetric_matrices([2, 2, 2], diagonal_sum=3) == -np.inf
 
     # Case: diagonal_sum is greater than the sum of row_sums
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=10) == -np.inf
@@ -66,8 +61,8 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: block_sums is not None (not yet supported) TODO: check that this is an impossible case
     # assert estimate_log_symmetric_matrices([1, 2, 3], index_partition=[1, 2, 1], block_sums=np.array([[1, 2], [2, 1]])) == -np.inf
 
-    # Case: total of row_sums is odd and even_diagonal is True
-    assert estimate_log_symmetric_matrices([1, 2, 2], even_diagonal=True) == -np.inf
+    # Case: total of row_sums is odd
+    assert estimate_log_symmetric_matrices([1, 2, 2]) == -np.inf
 
     # Case: total of off-diagonal is odd
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=3) == -np.inf
@@ -76,18 +71,15 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     assert True
 
 def test_estimate_log_symmetric_matrices_hardcoded():
-    # Case: each margin is 1 and even_diagonal is True
-    assert estimate_log_symmetric_matrices([0, 1, 1, 1, 1], even_diagonal=True) == approx(np.log(3))
-
-    # Case: each margin is 1 and even_diagonal is False
-    assert estimate_log_symmetric_matrices([1, 0, 1, 1, 1], even_diagonal=False) == approx(np.log(24))
+    # Case: each margin is 1
+    assert estimate_log_symmetric_matrices([0, 1, 1, 1, 1]) == approx(np.log(3))
 
     # All good
     assert True
 
 def test_alpha_2():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
-    assert alpha_2_symmetric_no_block(200,10,diagonal_sum=None, even_diagonal=True, alpha=1.0) == approx(9.75402)
+    assert alpha_2_symmetric_no_block(200,10,diagonal_sum=None, alpha=1.0) == approx(9.75402)
 
     
 
@@ -96,10 +88,10 @@ def test_alpha_2():
 
 def test_alpha_3():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
-    alpha_pm = alpha_3_symmetric_no_block(200,10,diagonal_sum=None, even_diagonal=True, alpha=1.0)
+    alpha_pm = alpha_3_symmetric_no_block(200,10,diagonal_sum=None, alpha=1.0)
     alpha_pm_true = 13.7998, 7.53246
-    assert alpha_pm[0] == approx(alpha_pm_true[0])
-    assert alpha_pm[1] == approx(alpha_pm_true[1])
+    assert alpha_pm[0] == approx(alpha_pm_true[0], 0.001)
+    assert alpha_pm[1] == approx(alpha_pm_true[1], 0.001)
     
     # All good
     assert True

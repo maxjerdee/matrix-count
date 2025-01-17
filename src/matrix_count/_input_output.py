@@ -3,7 +3,7 @@
 from . import _util
 import numpy as np
 
-def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, even_diagonal=True, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
+def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
     """Raises AssertionError for invalid inputs
 
     :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
@@ -11,8 +11,6 @@ def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, even
     :param diagonal_sum: What the sum of the diagonal elements should be constrained to. 
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
     :type diagonal_sum: int | None, optional
-    :param even_diagonal: Whether the diagonal entries of the matrix should be constrained to be even, defaults to False.
-    :type even_diagonal: bool, optional
     :param index_partition: A list of length n of integers ranging from 1 to q. 
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
         A value of None results in no block sum constraint, defaults to None.
@@ -36,8 +34,6 @@ def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, even
     if diagonal_sum is not None:
         assert isinstance(diagonal_sum, int) and diagonal_sum >= 0, "diagonal_sum must be an integer greater than or equal to 0 or None"
     
-    assert isinstance(even_diagonal, bool), "even_diagonal must be a boolean"
-    
     if index_partition is not None:
         assert isinstance(index_partition, list) and all(isinstance(x, int) and x >= 1 for x in index_partition), "block_indices must be a list of integers greater than or equal to 1"
 
@@ -57,7 +53,7 @@ def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, even
 
     assert isinstance(verbose, bool), "verbose must be a boolean"
     
-def _simplify_input(row_sums, diagonal_sum=None, even_diagonal=True, index_partition=None, block_sums=None):
+def _simplify_input(row_sums, diagonal_sum=None, index_partition=None, block_sums=None):
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
     n = len(row_sums)
@@ -65,9 +61,9 @@ def _simplify_input(row_sums, diagonal_sum=None, even_diagonal=True, index_parti
         index_partition = index_partition[row_sums != 0]
     row_sums = row_sums[row_sums != 0]
 
-    return row_sums, diagonal_sum, even_diagonal, index_partition, block_sums
+    return row_sums, diagonal_sum, index_partition, block_sums
         
-def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, even_diagonal=True, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
+def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
     """Raises AssertionError for invalid inputs
 
     :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
@@ -75,8 +71,6 @@ def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, even_diago
     :param diagonal_sum: What the sum of the diagonal elements should be constrained to. 
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
     :type diagonal_sum: int | None, optional
-    :param even_diagonal: Whether the diagonal entries of the matrix should be constrained to be even, defaults to False.
-    :type even_diagonal: bool, optional
     :param index_partition: A list of length n of integers ranging from 1 to q. 
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
         A value of None results in no block sum constraint, defaults to None.
@@ -100,37 +94,24 @@ def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, even_diago
 
     matrix_total = np.sum(row_sums)
 
-    if even_diagonal:
-        if matrix_total % 2 == 1:
-            if verbose:
-                print("No matrices satisfy, even diagonal and margin total is odd")
-            return -np.inf
-    else:
-        if diagonal_sum is not None:
-            if (matrix_total - diagonal_sum) % 2 == 1:
-                if verbose:
-                    print("No matrices satisfy, total of off-diagonal is odd")
-                return -np.inf
+    if matrix_total % 2 == 1:
+        if verbose:
+            print("No matrices satisfy, margin total is odd")
+        return -np.inf
 
     n = len(row_sums) # Number of vertices
 
     if diagonal_sum is not None:
-        if even_diagonal:
-            # If the diagonal sum is constrained to be even, the provided diagonal sum must be even
-            if diagonal_sum % 2 == 1:
-                if verbose:
-                    print("No matrices satisfy the even diagonal condition, given diagonal sum is odd")
-                return -np.inf
-            
-            if 0 > diagonal_sum or diagonal_sum > np.sum(2*np.floor(row_sums/2)):
-                if verbose:
-                    print("No matrices satisfy the diagonal sum condition")
-                return -np.inf
-        else:
-            if 0 > diagonal_sum or diagonal_sum > np.sum(row_sums):
-                if verbose:
-                    print("No matrices satisfy the diagonal sum condition")
-                return -np.inf
+        # If the diagonal sum is constrained to be even, the provided diagonal sum must be even
+        if diagonal_sum % 2 == 1:
+            if verbose:
+                print("No matrices satisfy the even diagonal condition, given diagonal sum is odd")
+            return -np.inf
+        
+        if 0 > diagonal_sum or diagonal_sum > np.sum(2*np.floor(row_sums/2)):
+            if verbose:
+                print("No matrices satisfy the diagonal sum condition")
+            return -np.inf
 
         max_margin = np.max(row_sums)
         if max_margin > (matrix_total + diagonal_sum)/2.0:
@@ -148,11 +129,7 @@ def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, even_diago
     if matrix_total == n:
         if verbose:
             print("Hardcoded case: each margin is 1")
-        if even_diagonal:
-            # Recursively can compute that there are n!/n!! possible matrices
-            return _util._log_factorial(n) - _util._log_factorial2(n)
-        else:
-            # Any permutation matrix works
-            return _util._log_factorial(n)
+        # Recursively can compute that there are n!/n!! possible matrices
+        return _util._log_factorial(n) - _util._log_factorial2(n)
     
     return None

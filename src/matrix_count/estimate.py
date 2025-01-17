@@ -8,7 +8,7 @@ import numpy as np
 #######################
 # Unbounded 
 
-def alpha_2_symmetric_no_block(matrix_total,n,diagonal_sum=None, even_diagonal=True, alpha=1.0):
+def alpha_2_symmetric_no_block(matrix_total,n,diagonal_sum=None, alpha=1.0):
     """Dirichlet-Multinomial parameter alpha for the second order moment matching estimate 
         of the number of symmetric matrices with given conditions.
 
@@ -18,65 +18,50 @@ def alpha_2_symmetric_no_block(matrix_total,n,diagonal_sum=None, even_diagonal=T
     :type n: int
     :param diagonal_sum: Sum of the diagonal elements of the matrix.
     :type diagonal_sum: int | None
-    :param even_diagonal: Whether the diagonal elements of the matrix should be constrained to be even, defaults to True.
-    :type even_diagonal: bool, optional
     :return: alpha
     :rtype: float
     """
     if diagonal_sum is None:
-        if even_diagonal:
-            # Update this for arbitrary alpha
-            numerator = -((1 + n) * (2 + n)) + matrix_total * (2 + n * (2 + n))
-            denominator = (-2 + n) * (1 + n) + matrix_total * (2 + n)
-            result = numerator / denominator
-            return result
-        else:
-            # Compute this case
-            raise NotImplementedError("Not yet implemented.")
+        # Update this for arbitrary alpha
+        numerator = -((1 + n) * (2 + n)) + matrix_total * (2 + n * (2 + n))
+        denominator = (-2 + n) * (1 + n) + matrix_total * (2 + n)
+        result = numerator / denominator
+        return result
     else:
-        if even_diagonal:
-            # Computed for alpha = 1, implemented in Mathematica
-            raise NotImplementedError("Not yet implemented.")
-        else:
-            raise NotImplementedError("Not yet implemented.")
+        # Computed for alpha = 1, implemented in Mathematica
+        raise NotImplementedError("Not yet implemented.")
 
-def alpha_3_symmetric_no_block(matrix_total,n,diagonal_sum=None, even_diagonal=True, alpha=1.0):
+def alpha_3_symmetric_no_block(matrix_total,n,diagonal_sum=None, alpha=1.0):
     if diagonal_sum is None:
-        if even_diagonal:
-            common_numerator = (
-                8 + matrix_total * (1 + n) * (-16 + n * (-24 + n * (-21 - 4 * n + n**3)))
-                - n * (-22 + n * (-23 + n * (-9 + n * (1 + n) * (4 + n))))
-                + matrix_total**2 * (8 + n * (18 + n * (22 + n * (13 + n * (5 + n)))))
-            )
+        common_numerator = (
+            8 + matrix_total * (1 + n) * (-16 + n * (-24 + n * (-21 - 4 * n + n**3)))
+            - n * (-22 + n * (-23 + n * (-9 + n * (1 + n) * (4 + n))))
+            + matrix_total**2 * (8 + n * (18 + n * (22 + n * (13 + n * (5 + n)))))
+        )
 
-            sqrt_term = np.sqrt(
-                (-1 + matrix_total - n) * n * (matrix_total + n + n**2)
-                * (-((1 + n) * (4 + n**2)) + matrix_total * (4 + n * (4 + n * (2 + n))))
-                * (-((1 + n) * (4 + n * (5 + n * (6 + n * (3 + n))))) 
-                + matrix_total * (4 + n * (9 + n * (10 + n * (8 + n * (3 + n))))))
-            )
+        sqrt_term = np.sqrt(
+            (-1 + matrix_total - n) * n * (matrix_total + n + n**2)
+            * (-((1 + n) * (4 + n**2)) + matrix_total * (4 + n * (4 + n * (2 + n))))
+            * (-((1 + n) * (4 + n * (5 + n * (6 + n * (3 + n))))) 
+            + matrix_total * (4 + n * (9 + n * (10 + n * (8 + n * (3 + n))))))
+        )
 
-            denominator = (
-                matrix_total * (1 + n) * (-16 + (-2 + n) * n * (2 + n) * (3 + n))
-                + (1 + n)**2 * (8 + n * (-2 + n - 3 * n**2 + 2 * n**3))
-                + matrix_total**2 * (8 + n * (2 + n) * (7 + n * (2 + n)))
-            )
+        denominator = (
+            matrix_total * (1 + n) * (-16 + (-2 + n) * n * (2 + n) * (3 + n))
+            + (1 + n)**2 * (8 + n * (-2 + n - 3 * n**2 + 2 * n**3))
+            + matrix_total**2 * (8 + n * (2 + n) * (7 + n * (2 + n)))
+        )
 
-            alpha_plus = (common_numerator + sqrt_term) / denominator
-            alpha_minus = (common_numerator - sqrt_term) / denominator
+        alpha_plus = (common_numerator + sqrt_term) / denominator
+        alpha_minus = (common_numerator - sqrt_term) / denominator
 
-            return alpha_plus, alpha_minus
-        else:
-            raise NotImplementedError("Not yet implemented.")
+        return alpha_plus, alpha_minus
     else:
-        if even_diagonal:
-            raise NotImplementedError("Not yet implemented.")
-        else:
-            raise NotImplementedError("Not yet implemented.")
+        raise NotImplementedError("Not yet implemented.")
 
 # TODO: Calculate and add the block sums cases
 
-def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, even_diagonal=True, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
+def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
     """Dirichlet-multinomial moment-matching estimate of the logarithm 
         of the number of symmetric non-negative matrices with given row sums.
 
@@ -85,8 +70,6 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, even_diagona
     :param diagonal_sum: What the sum of the diagonal elements should be constrained to. 
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
     :type diagonal_sum: int | None, optional
-    :param even_diagonal: Whether the diagonal entries of the matrix should be constrained to be even, defaults to False.
-    :type even_diagonal: bool, optional
     :param index_partition: A list of length n of integers ranging from 1 to q. 
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
         A value of None results in no block sum constraint, defaults to None.
@@ -106,13 +89,13 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, even_diagona
     """
 
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(row_sums, diagonal_sum=diagonal_sum, even_diagonal=even_diagonal, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
+    _input_output._log_symmetric_matrices_check_arguments(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
     
     # Remove empty margins
-    row_sums, diagonal_sum, even_diagonal, index_partition, block_sums = _input_output._simplify_input(row_sums, diagonal_sum=diagonal_sum, even_diagonal=even_diagonal, index_partition=index_partition, block_sums=block_sums)
+    row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums)
     
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, even_diagonal=even_diagonal, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order)
+    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order)
     if hardcoded_result is not None:
         return hardcoded_result
     else:
@@ -120,7 +103,7 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, even_diagona
         matrix_total = np.sum(row_sums)
         n = len(row_sums)
         if estimate_order == 2:
-            alpha_DM = alpha_2_symmetric_no_block(matrix_total,n,diagonal_sum=diagonal_sum, even_diagonal=even_diagonal, alpha=alpha, estimate_order=estimate_order)
+            alpha_DM = alpha_2_symmetric_no_block(matrix_total,n,diagonal_sum=diagonal_sum, alpha=alpha, estimate_order=estimate_order)
             result = _util._log_binom(matrix_total/2 + n*(n+1)/2 - 1, n*(n+1)/2 - 1) 
             log_P = - _util._log_binom(matrix_total + n*alpha_DM - 1, n*alpha_DM - 1)
             for k in row_sums:
@@ -148,13 +131,11 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, even_diagona
 # # Symmetric matrices
 # #######################
 # # Unbounded
-# def log_Omega_S_DM(row_sums, even_diagonal=True, diagonal_sum=None, alpha=1.0):
+# def log_Omega_S_DM(row_sums, diagonal_sum=None, alpha=1.0):
 #     """Dirichlet-multinomial moment-matching estimate of the (log) number of symmetric non-negative matrices with given row sums.
 
 #     :param row_sums: Row sums of the matrix.
 #     :type row_sums: list | np.array
-#     :param even_diagonal: Whether the diagonal entries of the matrix should be constrained to be even, defaults to False
-#     :type even_diagonal: bool, optional
 #     :param diagonal_sum: What the sum of the diagonal elements should be constrained to, a value of None results in no constraint, defaults to None
 #     :type diagonal_sum: int | None, optional
 #     :param alpha: Dirichlet-multinomial parameter to weigh the matrices in the sum, a value of 1 gives the uniform count of matrices, defaults to 1
