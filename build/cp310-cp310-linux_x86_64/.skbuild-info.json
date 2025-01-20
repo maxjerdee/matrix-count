@@ -1,0 +1,8 @@
+{
+  "source_dir": "/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count",
+  "build_dir": "/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64",
+  "cmake_path": "/usr/bin/cmake",
+  "skbuild_path": "/tmp/pip-build-env-4onx116k/overlay/lib/python3.10/site-packages/scikit_build_core",
+  "skbuild_version": "0.10.7",
+  "python_executable": "/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/.nox/tests/bin/python"
+}

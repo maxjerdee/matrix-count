@@ -1,0 +1,7 @@
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/sample_core.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/edit_cache.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/list_install_components.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/install.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/install/local.dir
+/mnt/c/Users/mjerdee/Documents/GitHub/package-development/matrix-count/build/cp310-cp310-linux_x86_64/CMakeFiles/install/strip.dir

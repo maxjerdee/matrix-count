@@ -1,4 +1,4 @@
-// Example usage: ./generate_samples -i example.txt -T 1
+// Example usage: ./generate_samples -i in.txt -o out.txt
 
 
 #include <getopt.h>
