@@ -19,5 +19,5 @@ def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None
     # TODO: Implement the block_sums constraint and wrap here.
 
     diagonal_sum = diagonal_sum if diagonal_sum is not None else -1 # -1 means no constraint
-    
+
     return sample_symmetric_matrix_core(row_sums, diagonal_sum, alpha)

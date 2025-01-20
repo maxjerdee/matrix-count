@@ -32,22 +32,36 @@
 
 ##### Maximilian Jerdee
 
-We provide estimates for a variety of counting problems defined over non-negative integer matrices. For example, we estimate
+We provide analytic estimates and sampling-based algorithms for a variety of counting problems defined over non-negative integer matrices. 
 
-- $\Omega^S(\mathbf{r})$: count of nonnegative integer symmetric matrices with a given row sum $\mathbf{r}$ and assorted estimates from an upcoming paper.
-    - $\Omega_{2}^S(\mathbf{r})$: count of such matrices with even diagonal entries.
-    - $\Omega^S(\mathbf{r},d), \Omega_{2}^S(\mathbf{r},d)$: counts of such matrices with diagonal entries that sum to $d$.
-- $\Omega(\mathbf{r},\mathbf{c})$: count of integer symmetric matrices with given row sums $\mathbf{r}$ and column sums $\mathbf{c}$ as described in Jerdee, Kirkley, Newman (2022) https://arxiv.org/abs/2209.14869
+For example, we may count the number of non-negative symmetric integer matrices with even diagonal entries and a given row sum. This is the number of (multi-)graphs with a given degree sequence. We can also estimate the number of such matrices under combinations of the further conditions:
+- Fixed total sum of diagonal entries.
+- Fixed sum of entries in blocks of matrix. (Not yet implemented)
+We also include methods for estimating the number of non-negative integer matrices with a given row sum and column sum as described in Jerdee, Kirkley, Newman (2022) https://arxiv.org/abs/2209.14869. (Not yet implemented)
 
-We also give estimates for a generalized counting problem where the matrices are weighted by a Dirichlet-multinomial factor on their entries. For example, we may more generally define $\Omega^S(\mathbf{r}|\alpha)$ as the sum over the set $A^S(\mathbf{r})$ of all symmetric matrices with sum $\mathbf{r}$ with a Dirichlet-multinomial weighting on the matrices so that $$\Omega^S(\mathbf{r}|\alpha) = \sum_{X \in A^S(\mathbf{r})} \prod_{r \leq s}\frac{\Gamma(X_{rs} + \alpha)}{\Gamma(\alpha)\Gamma(X_{rs} + 1)}.$$
-Note that $\alpha = 1$ reduces to the earlier uniform counting of cases. This more general estimate acts as the partition function of a generalized random multigraph model. 
+These problems can also be generalized as sums over matrices $A$ weighted by a Dirichlet-multinomial factor on their entries 
+$$
+w(A) = \prod_{i < j}\binom{A_{ij} + \alpha - 1}{\alpha - 1} \prod_i \binom{A_{ii}/2 + \alpha - 1}{\alpha - 1}.
+$$
+Note that $\alpha = 1$ corresponds to the uniform count. This more general estimate acts as the partition function of a generalized random multigraph model.
 
-We may also estimate the number of symmetric non-negative integer matrices with a particular margin and given "block" sums $\mathbf{M}$.
+## Installation
+`matrix-count` may be installed through pip:
 
-The above quantities may also be counted only among matrices with entries of zeros and ones, indicated with a subscript of "0." Under the adjacency matrix interpretation, this is then a restriction to simple graphs. 
+```bash
+pip install matrix-count
+```
 
-The `\estimates` directory contains python implementations of linear time and maximum entropy estimates of these quantities. 
+## Typical usage
+Once installed, the package can be imported as
+```python
+import matrix_count
+```
+Note that this is not `import matrix-count`.
 
-The `\SIS` directory applies the linear time estimates of these quantities to numerically approximate the quantities with sequential importance sampling implemented in c++. In principle these algorithms should converge to the true results although it make take a prohibitively long time to do so for large cases. 
+The package can then be used to evaluate rapid analytic estimates of these counting problems, to sample from the space of such matrices, and to converge to the exact count of matrices.
+```python
 
-Run the python script `run_examples.py` for examples of using these implementations on the test cases in the `\data` directory. To use the sequential importance sampling code it must first be compiled by running `make` in the `\SIS` directory. 
+```
+
+Further usage examples can be found in the `examples` directory of the repository.

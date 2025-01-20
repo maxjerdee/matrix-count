@@ -46,22 +46,23 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
     row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums)
 
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order)
+    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
     if hardcoded_result is not None:
-        return hardcoded_result
+        return (hardcoded_result, 0) # No error in the hardcoded cases
     
     # Sample the matrices
     entropies = []
     log_count_est = 0 # Estimated log count
     log_count_err_est = np.inf # Estimated error in the log count
     for i in range(max_samples):
-        sample, entropy = sample_symmetric_matrix(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, verbose=verbose)
+        (sample, entropy) = sample_symmetric_matrix(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, verbose=verbose)
         entropy = entropy + _util._log_weight(sample, alpha) # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
         entropies.append(entropy)
         log_count_est = _util._log_sum_exp(entropies) - np.log(len(entropies))
-        if i > 1: # Estimate the error by the standard deviation of the counts
-            logE2 = _util._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
-            logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
+
+        logE2 = _util._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
+        logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
+        if 2*logE - logE2 > 0: # Estimate the error by the standard deviation of the counts
             log_std = 0.5 * (np.log(np.exp(0) - np.exp(2*logE - logE2)) + logE2)
             log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
             if log_count_err_est < error_target: # Terminate if the error is below the target

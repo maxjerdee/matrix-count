@@ -2,11 +2,6 @@ import numpy as np
 from . import _util
 from . import _input_output
 
-######################################
-# Symmetric matrices
-#######################
-# Unbounded
-
 def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
     """Dirichlet-Multinomial parameter alpha for the second order moment matching estimate 
         of the number of symmetric matrices with given conditions.
@@ -115,7 +110,7 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partit
     row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums)
 
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order)
+    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
     if hardcoded_result is not None:
         return hardcoded_result
 
