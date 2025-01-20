@@ -44,9 +44,6 @@ def test_estimate_log_symmetric_matrices_invalid_arguments():
     with raises(AssertionError):
         estimate_log_symmetric_matrices([1, 2, 3], estimate_order=4)
 
-    # All good
-    assert True
-
 
 def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: diagonal_sum is odd
@@ -67,15 +64,9 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: total of off-diagonal is odd
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=3) == -np.inf
 
-    # All good
-    assert True
-
 def test_estimate_log_symmetric_matrices_hardcoded():
     # Case: each margin is 1
     assert estimate_log_symmetric_matrices([0, 1, 1, 1, 1]) == approx(np.log(3))
-
-    # All good
-    assert True
 
 def test_alpha_2():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
@@ -86,9 +77,6 @@ def test_alpha_2():
     assert alpha_symmetric_2(200,10,diagonal_sum=100, alpha=1.0) == approx(3.6041, 0.001)
 
     assert alpha_symmetric_2(200,10,diagonal_sum=100, alpha=5.0) == approx(13.1526, 0.001)
-
-    # All good
-    assert True
 
 def test_alpha_3():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
@@ -101,9 +89,6 @@ def test_alpha_3():
     alpha_pm_true = 63.6326, 30.4128
     assert alpha_pm[0] == approx(alpha_pm_true[0], 0.001)
     assert alpha_pm[1] == approx(alpha_pm_true[1], 0.001)
-    
-    # All good
-    assert True
 
 def test_estimate_log_symmetric_matrices():
     # Test the estimate_log_symmetric_matrices function
@@ -115,6 +100,3 @@ def test_estimate_log_symmetric_matrices():
 
     assert estimate_log_symmetric_matrices([20, 11, 3], diagonal_sum=20, alpha=1, estimate_order=2) == approx(1.29499, 0.001)
     assert estimate_log_symmetric_matrices([20, 11, 3], diagonal_sum=20, alpha=5, estimate_order=2) == approx(18.5925, 0.001)
-
-    # All good
-    assert True
