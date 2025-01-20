@@ -20,12 +20,12 @@ def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
     :return: alpha
     :rtype: float
     """
-    # TODO: Implement this for general alpha
     if diagonal_sum is None:
         numerator = matrix_total + (n + 1) * (matrix_total + n * (matrix_total - 1) - 2) * alpha
         denominator = 2 * (matrix_total - 1) + n * ((n + 1) * alpha + matrix_total - 2)
         result = numerator / denominator
         return result
+    # Fixed diagonal sum
     result = -(((-1 + n) * diagonal_sum**2 * (2 + (-1 + n) * n * alpha) + 
                 2 * (-1 + n) * n * diagonal_sum * alpha * (2 + (-1 + n) * n * alpha) - 
                 (-1 + n) * matrix_total**2 * (1 + n * alpha) * (2 + (-1 + n) * n * alpha) + 
@@ -79,6 +79,7 @@ def alpha_symmetric_3(matrix_total, n, diagonal_sum=None, alpha=1.0):
         alpha_minus = (common_numerator - sqrt_term) / denominator
 
         return alpha_plus, alpha_minus
+    # Fixed diagonal sum
     raise NotImplementedError("Not yet implemented.")
 
 def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
@@ -107,7 +108,6 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partit
     :return: The logarithm of the estimate of the number of symmetric matrices with given row sums and conditions
     :rtype: float
     """
-
     # Check input validity
     _input_output._log_symmetric_matrices_check_arguments(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
 
@@ -124,28 +124,30 @@ def estimate_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partit
     if diagonal_sum is None:
         if estimate_order == 2:
             alpha_dm = alpha_symmetric_2(matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha)
-            result = _util._log_binom(matrix_total / 2 + n * (n + 1) / 2 - 1, n * (n + 1) / 2 - 1)
+            result = _util._log_binom(matrix_total / 2 + alpha * n * (n + 1) / 2 - 1, alpha * n * (n + 1) / 2 - 1)
             log_p = -_util._log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
             for k in row_sums:
                 log_p += _util._log_binom(k + alpha_dm - 1, alpha_dm - 1)
             result += log_p
             return result
-        alpha_plus, alpha_minus = alpha_symmetric_3(matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha)
-        log_1 = _util._log_binom(matrix_total / 2 + n * (n + 1) / 2 - 1, n * (n + 1) / 2 - 1)
-        log_1 += -_util._log_binom(matrix_total + n * alpha_plus - 1, n * alpha_plus - 1)
-        for k in row_sums:
-            log_1 += _util._log_binom(k + alpha_plus - 1, alpha_plus - 1)
-        log_2 = _util._log_binom(matrix_total / 2 + n * (n + 1) / 2 - 1, n * (n + 1) / 2 - 1)
-        log_2 += -_util._log_binom(matrix_total + n * alpha_minus - 1, n * alpha_minus - 1)
-        for k in row_sums:
-            log_2 += _util._log_binom(k + alpha_minus - 1, alpha_minus - 1)
-        result = _util._log_sum_exp([log_1, log_2]) - np.log(2)
-        return result
+        if estimate_order == 3:
+            alpha_plus, alpha_minus = alpha_symmetric_3(matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha)
+            log_1 = _util._log_binom(matrix_total / 2 + alpha * n * (n + 1) / 2 - 1, alpha * n * (n + 1) / 2 - 1)
+            log_1 += -_util._log_binom(matrix_total + n * alpha_plus - 1, n * alpha_plus - 1)
+            for k in row_sums:
+                log_1 += _util._log_binom(k + alpha_plus - 1, alpha_plus - 1)
+            log_2 = _util._log_binom(matrix_total / 2 + alpha * n * (n + 1) / 2 - 1, alpha * n * (n + 1) / 2 - 1)
+            log_2 += -_util._log_binom(matrix_total + n * alpha_minus - 1, n * alpha_minus - 1)
+            for k in row_sums:
+                log_2 += _util._log_binom(k + alpha_minus - 1, alpha_minus - 1)
+            result = _util._log_sum_exp([log_1, log_2]) - np.log(2)
+            return result
+        raise NotImplementedError("Not yet implemented.")
 
     if estimate_order == 2:
         alpha_dm = alpha_symmetric_2(matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha)
-        result = _util._log_binom(diagonal_sum / 2 + n - 1, n - 1)
-        result += _util._log_binom((matrix_total - diagonal_sum) / 2 + n * (n - 1) / 2 - 1, n * (n - 1) / 2 - 1)
+        result = _util._log_binom(diagonal_sum / 2 + alpha * n - 1, alpha * n - 1)
+        result += _util._log_binom((matrix_total - diagonal_sum) / 2 + alpha * n * (n - 1) / 2 - 1, alpha * n * (n - 1) / 2 - 1)
         result += -_util._log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
         for k in row_sums:
             result += _util._log_binom(k + alpha_dm - 1, alpha_dm - 1)

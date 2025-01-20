@@ -29,7 +29,7 @@ def _log_symmetric_matrices_check_arguments(row_sums, *, diagonal_sum=None, inde
 
     # Checking input validity
     assert isinstance(row_sums, (list, np.ndarray)), "row_sums must be a list or np.array"
-    assert all(isinstance(x, int) and x >= 0 for x in row_sums), "All elements in row_sums must be non-negative integers"
+    assert all(isinstance(x, (int, np.int64)) and x >= 0 for x in row_sums), "All elements in row_sums must be non-negative integers"
     
     if diagonal_sum is not None:
         assert isinstance(diagonal_sum, int) and diagonal_sum >= 0, "diagonal_sum must be an integer greater than or equal to 0 or None"

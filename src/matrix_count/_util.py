@@ -53,3 +53,21 @@ def _log_sum_exp(x):
     """
     a = np.max(x)
     return a + np.log(np.sum(np.exp(x - a)))
+
+def _log_weight(A, alpha):
+    """Logarithm of the weight of a matrix A under the Dirichlet-multinomial distribution with parameter alpha
+
+    :param A: Matrix
+    :type A: np.ndarray
+    :param alpha: Dirichlet-multinomial parameter
+    :type alpha: float
+    :return: log(weight)
+    :rtype: float
+    """
+    log_weight = 0
+    for i in range(A.shape[0]):
+        for j in range(i+1, A.shape[1]):
+            log_weight += _log_binom(A[i,j] +  alpha - 1, alpha - 1)
+        log_weight += _log_binom(A[i,i]/2 +  alpha - 1, alpha - 1)
+
+    return log_weight

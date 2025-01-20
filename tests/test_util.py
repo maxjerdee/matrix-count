@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 from pytest import approx
-from matrix_count._util import _log_binom, _log_sum_exp, _log_factorial, _log_factorial2
+from matrix_count._util import _log_binom, _log_sum_exp, _log_factorial, _log_factorial2, _log_weight
 
 def test_log_factorial():
     n = 5
@@ -36,3 +36,9 @@ def test_log_sum_exp():
         result += np.exp(a)
     result = np.log(result)
     assert _log_sum_exp(test_array) == approx(result)
+
+def test_log_weight():
+    A = np.array([[2, 2, 3], [2, 3, 4], [3, 4, 4]])
+    alpha = 5
+    result = 17.0292069
+    assert _log_weight(A, alpha) == approx(result)

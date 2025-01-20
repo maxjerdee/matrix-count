@@ -9,3 +9,8 @@ from __future__ import annotations
 from ._version import version as __version__
 
 __all__ = ["__version__"]
+
+# These are imported in order listed
+from matrix_count.estimate import *
+from matrix_count.sample import *
+from matrix_count.count import *

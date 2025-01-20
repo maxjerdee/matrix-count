@@ -108,10 +108,13 @@ def test_alpha_3():
 def test_estimate_log_symmetric_matrices():
     # Test the estimate_log_symmetric_matrices function
     assert estimate_log_symmetric_matrices([20, 11, 3], alpha=1, estimate_order=2) == approx(3.65746, 0.001)
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=5, estimate_order=2) == approx(20.3397, 0.001)
 
     assert estimate_log_symmetric_matrices([20, 11, 3], alpha=1, estimate_order=3) == approx(3.60119, 0.001)
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=5, estimate_order=3) == approx(20.3536, 0.001)
 
     assert estimate_log_symmetric_matrices([20, 11, 3], diagonal_sum=20, alpha=1, estimate_order=2) == approx(1.29499, 0.001)
+    assert estimate_log_symmetric_matrices([20, 11, 3], diagonal_sum=20, alpha=5, estimate_order=2) == approx(18.5925, 0.001)
 
     # All good
     assert True
