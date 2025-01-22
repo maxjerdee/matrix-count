@@ -65,6 +65,7 @@ The package can then be used to evaluate rapid analytic estimates of these count
 margin = [10,9,8,7,6,5,4,3]
 
 # Estimate the logarithm of the number of symmetric matrices with given margin sum
+# (number of multigraphs with given degree sequence)
 estimate = matrix_count.estimate_log_symmetric_matrices(margin,verbose=True,alpha=1)
 print("Estimated log count of symmetric matrices:", estimate)
 

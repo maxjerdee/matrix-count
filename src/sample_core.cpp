@@ -23,9 +23,6 @@ namespace py = pybind11;
 #include "estimates.h"
 #include "helpers.h"
 
-std::random_device rd;
-std::mt19937 rng(rd()); // Initialize Mersenne Twister
-
 PYBIND11_MODULE(sample_core, m) {
     m.doc() = R"pbdoc(
         Sample module
