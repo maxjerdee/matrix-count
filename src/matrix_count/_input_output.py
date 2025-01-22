@@ -106,17 +106,24 @@ def _log_symmetric_matrices_hardcoded(row_sums, *, diagonal_sum=None, index_part
             if verbose:
                 print("No matrices satisfy the even diagonal condition, given diagonal sum is odd")
             return -np.inf
-        
-        if 0 > diagonal_sum or diagonal_sum > np.sum(2*np.floor(row_sums/2)):
-            if verbose:
-                print("No matrices satisfy the diagonal sum condition")
-            return -np.inf
+    
+        # Compute the minimum possible diagonal entry that can be achieved (given the given number of off-diagonal edges)
+        m_in_min = 0
+        m_out = np.sum(row_sums)/2 - diagonal_sum/2
+        for k in row_sums:
+            m_in_min += max(0,np.ceil((k-m_out)/2))
 
-        max_margin = np.max(row_sums)
-        if max_margin > (matrix_total + diagonal_sum)/2.0:
+        m_in_max = np.sum(np.floor(row_sums/2))
+        
+        if diagonal_sum < 2*m_in_min or diagonal_sum > 2*m_in_max:
             if verbose:
-                print(f"No matrices satisfy the diagonal sum condition, entry {max_margin} too large.")
+                print(f"No matrices satisfy the diagonal sum condition.")
             return -np.inf
+        
+    if diagonal_sum == np.sum(row_sums):
+        if verbose:
+            print("Hardcoded case: all off-diagonal entries are 0")
+        return 0 # log(1)
     
     # TODO: Add explicit treatment of alpha = 0
     assert alpha > 0, "alpha must be greater than 0, alpha = 0 is not yet supported"

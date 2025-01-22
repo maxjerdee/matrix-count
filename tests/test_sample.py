@@ -3,43 +3,43 @@ from __future__ import annotations
 from matrix_count.sample import *
 import numpy as np
 from pytest import approx, raises
-
+from matrix_count._util import _log_sum_exp
 
 # sample_symmetric_matrix
 
 
 def test_sample_symmetric_matrix():
     # Note that this is a random test and the results may vary.
-    
-    # For some reason this test checking the correlator is failing, TODO: investigate and implement this test
-    # samples = []
-    # entropies = []
-    # entries = []
+    samples = []
+    entropies = []
+    log_correlators = []
 
-    # correlator_sum = 0
-    # total_prop = 0
-    # num_samples = 1000
+    correlator_sum = 0
+    total_prop = 0
+    num_samples = 1000
 
-    # for t in range(num_samples):
-    #     sample, entropy = sample_symmetric_matrix([20,11,3])
-    #     samples.append(sample)
-    #     entropies.append(entropy)
-    #     prop = np.exp(-entropy)
-    #     total_prop += prop
-    #     # correlator_sum += sample[0,1]*sample[1,2]*prop
-    #     correlator_sum += sample[0,0]*sample[0,0]*prop
+    for t in range(num_samples):
+        sample, entropy = sample_symmetric_matrix([20,11,3])
+        samples.append(sample)
+        entropies.append(entropy)
+        val = sample[0,1]*sample[1,2]
+        if val == 0:
+            log_correlators.append(-np.inf)
+        else:
+            log_correlators.append(np.log(val))
 
-    # # Check the correlator
-    # correlator = correlator_sum / total_prop
-    # print(correlator)
+    entropies = np.array(entropies)
+    log_correlators = np.array(log_correlators)
 
-    # inverse_probs = np.exp(np.array(entropies))
-    # print(np.mean(inverse_probs))
+    # Expectations can be calculated as E[f(A)] = 1/(\sum_{A_i} 1/Q(A_i))\sum_{A_i} f(A_i)/Q(A_i)
+    # where Q(A_i) = exp(-entropy(A_i))
+    log_correlator = _log_sum_exp(log_correlators + entropies)-_log_sum_exp(entropies)
+    log_correlator_squared = _log_sum_exp(2*log_correlators + entropies)-_log_sum_exp(entropies)
+    log_correlator_std = 0.5 * (np.log(np.exp(0) - np.exp(2*log_correlator - log_correlator_squared)) + log_correlator_squared)
 
-    # # Print count of each entry
-    # print(np.unique(entries, return_counts=True))
+    log_correlator_err_est = np.exp(log_correlator_std - 0.5 * np.log(len(entropies)) - log_correlator)
 
-    # assert correlator == approx(5.0, abs=0.1)
+    sigma_error = 4 # Number of standard deviations to check within
+    true_value = 5
 
-    # All good
-    assert True
+    assert log_correlator == approx(np.log(true_value), abs=sigma_error*log_correlator_err_est) # Chance that this just randomly fails

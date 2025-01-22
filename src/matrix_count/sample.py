@@ -1,7 +1,8 @@
 from . import _input_output
+import numpy as np
 from matrix_count.sample_core import sample_symmetric_matrix_core
 
-def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False):
+def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False, seed=None):
     """
     Sample a symmetric matrix with given row sums and diagonal sum.
 
@@ -9,6 +10,22 @@ def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None
     :type ks: list of int
     :param diagonal_sum: Sum of the diagonal elements of the matrix.
     :type diagonal_sum: int
+    :param index_partition: A list of length n of integers ranging from 1 to q. 
+        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
+        A value of None results in no block sum constraint, defaults to None.
+    :type index_partition: list of int | None, optional
+    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix. 
+        A value of None results in no block sum constraint, defaults to None.
+    :type block_sums: np.ndarray, shape (q, q), dtype int
+    :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
+        A value of 1 gives the uniform count of matrices, defaults to 1
+    :type alpha: float, optional
+    :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
+    :type estimate_order: int, optional
+    :param verbose: Whether to print verbose output, defaults to False.
+    :type verbose: bool, optional
+    :param seed: Seed for the random number generator, defaults to None.
+    :type seed: int, optional
     :return: A symmetric matrix with given row sums and diagonal sum, and the log probability of the matrix.
     :rtype: np.ndarray, float
     """
@@ -20,4 +37,11 @@ def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None
 
     diagonal_sum = diagonal_sum if diagonal_sum is not None else -1 # -1 means no constraint
 
-    return sample_symmetric_matrix_core(row_sums, diagonal_sum, alpha)
+    # Seeding the sampler
+    if seed is None:
+        seed = int(np.random.randint(2**30))
+    else:
+        # Check that the seed is an integer
+        seed = int(seed)
+
+    return sample_symmetric_matrix_core(row_sums, diagonal_sum, alpha, seed)

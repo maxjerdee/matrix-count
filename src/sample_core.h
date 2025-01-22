@@ -4,7 +4,7 @@
 #define SAMPLE_CORE_H
 
 // Sample the matrix
-std::pair<py::array_t<double>, double> sample_symmetric_matrix_core(const std::vector<int>& ks, int diagonal_sum, double alpha_input);
+std::pair<py::array_t<double>, double> sample_symmetric_matrix_core(const std::vector<int>& ks, int diagonal_sum, double alpha_input, int seed);
 // Function to generate a sample table along with the (absolute) minus log probability that we sampled that table
 std::pair<std::vector<std::vector<int>>, double> sample_table(std::vector<int> ks, int m_in);
 // Sample the diagonal sum of a symmetric table with given margin

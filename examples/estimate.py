@@ -7,7 +7,6 @@ column_margin = [108, 286, 71, 127]
 
 # from matrix_count.estimate import *
 import matrix_count
-from matrix_count import _util
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -33,8 +32,8 @@ for t in range(num_samples):
     sample, entropy = matrix_count.sample_symmetric_matrix(test_margin)
     entropies.append(entropy)
     # log(Delta log E) = log(Delta E/E) = 1/2log(E2 - E^2) - 1/2 log(n) - log(E)
-    logE2 = _util._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
-    logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
+    logE2 = matrix_count._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
+    logE = matrix_count._log_sum_exp(entropies) - np.log(len(entropies))
     log_std = 0.5 * (np.log(np.exp(0) - np.exp(2*logE - logE2)) + logE2)
     log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
     logEs.append(logE)

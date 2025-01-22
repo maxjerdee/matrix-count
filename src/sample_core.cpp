@@ -5,8 +5,6 @@
 
 namespace py = pybind11;
 
-// Example usage: ./generate_samples -i in.txt -o out.txt -T 1000
-
 #include <getopt.h>
 #include <iostream>
 #include <fstream>
@@ -26,7 +24,7 @@ namespace py = pybind11;
 #include "helpers.h"
 
 std::random_device rd;
-std::mt19937 rng(rd()); // Initialize Mersenne Twister with seed 10
+std::mt19937 rng(rd()); // Initialize Mersenne Twister
 
 PYBIND11_MODULE(sample_core, m) {
     m.doc() = R"pbdoc(
@@ -42,7 +40,9 @@ PYBIND11_MODULE(sample_core, m) {
 }
 
 // Sample matrix function returning a 2D NumPy array and a float
-std::pair<py::array_t<double>, double> sample_symmetric_matrix_core(const std::vector<int>& ks, int diagonal_sum, double alpha_input) {
+std::pair<py::array_t<double>, double> sample_symmetric_matrix_core(const std::vector<int>& ks, int diagonal_sum, double alpha_input, int seed) {
+    rng.seed(seed); // Set the random seed
+
     // Extract relevant metadata
     n = ks.size(); // Number of rows/columns, globally defined
     m = std::accumulate(ks.begin(), ks.end(), 0)/2; // Number of edges, globally defined

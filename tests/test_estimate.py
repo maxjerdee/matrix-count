@@ -52,8 +52,9 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: diagonal_sum is greater than the sum of row_sums
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=10) == -np.inf
 
-    # Case: max_margin - m > diagonal_sum / 2.0
+    # Case: diagonal_sums with no matrices
     assert estimate_log_symmetric_matrices([10, 1, 1], diagonal_sum=2) == -np.inf
+    assert estimate_log_symmetric_matrices([2, 2, 2, 2], diagonal_sum=6) == -np.inf
 
     # Case: block_sums is not None (not yet supported) TODO: check that this is an impossible case
     # assert estimate_log_symmetric_matrices([1, 2, 3], index_partition=[1, 2, 1], block_sums=np.array([[1, 2], [2, 1]])) == -np.inf
@@ -67,6 +68,9 @@ def test_estimate_log_symmetric_matrices_no_matrices():
 def test_estimate_log_symmetric_matrices_hardcoded():
     # Case: each margin is 1
     assert estimate_log_symmetric_matrices([0, 1, 1, 1, 1]) == approx(np.log(3))
+
+    # Case: all off-diagonal are 0
+    assert estimate_log_symmetric_matrices([2,2,2,2], diagonal_sum=8) == approx(np.log(1))
 
 def test_alpha_2():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
