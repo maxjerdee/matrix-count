@@ -6,14 +6,16 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-# test_margin = [20,11,3,4]
-# test_margin = [20,11,3,4,3,3,3,3]
-# test_margin = [20,11,3]
-num_samples = 10000
-test_margin = [10,9,8,7,6,5,4,3]
+test_margin = [3,3,3,3,2,2]
+true_count = np.exp(7.51098)
 
+# test_margin = [20,11,3]
 # true_count = 34
-true_count = None
+
+num_samples = 10000
+# test_margin = [10,9,8,7,6,5,4,3]
+
+# true_count = None
 
 # Estimate the number of matrices with given margins
 estimate = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=2)

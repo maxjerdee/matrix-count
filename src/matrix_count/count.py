@@ -62,7 +62,7 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
 
         logE2 = _util._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
         logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
-        if 2*logE - logE2 > 0.0001: # Estimate the error by the standard deviation of the counts TODO: treat this better
+        if logE2 - 2*logE > 0.0001: # Estimate the error by the standard deviation of the counts TODO: treat this better
             log_std = 0.5 * (np.log(np.exp(0) - np.exp(2*logE - logE2)) + logE2)
             log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
             if log_count_err_est < error_target: # Terminate if the error is below the target

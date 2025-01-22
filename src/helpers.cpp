@@ -4,12 +4,9 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
-#include <random>
 
 #include "globals.h"
 #include "helpers.h"
-
-extern std::mt19937 rng; // Declare the Mersenne Twister random number generator
 
 // Logarithm of the binomial coefficient
 double log_binom(double a, double b){
@@ -61,10 +58,16 @@ std::pair<int,double> sample_log_weights(std::vector<double> log_weights){
     }
 
     // Sample according to these weights
-    std::discrete_distribution<> dist(weights.begin(), weights.end());
-    unsigned int sampled_index = dist(rng);
-
-    return std::make_pair(sampled_index, -std::log(weights[sampled_index]));
+    double p = std::rand() / (RAND_MAX + 1.0);
+    double culm_weight = 0.0;
+    for (int i = 0; i < weights.size(); ++i) {
+        culm_weight += weights[i];
+        if (p <= culm_weight) {
+            return std::make_pair(i, -std::log(weights[i]));
+        }
+    }
+    // If no match found, return the last element as a fallback (due to rounding issues)
+    return std::make_pair(weights.size() - 1, -std::log(weights.back()));
 }
 
 // Printing functions (useful for debugging)
