@@ -40,9 +40,9 @@ For example, we may count the number of non-negative symmetric integer matrices 
 We also include methods for estimating the number of non-negative integer matrices with a given row sum and column sum as described in Jerdee, Kirkley, Newman (2022) https://arxiv.org/abs/2209.14869. (Not yet implemented)
 
 These problems can also be generalized as sums over matrices $A$ weighted by a Dirichlet-multinomial factor on their entries 
-$$
-w(A) = \prod_{i < j}\binom{A_{ij} + \alpha - 1}{\alpha - 1} \prod_i \binom{A_{ii}/2 + \alpha - 1}{\alpha - 1}.
-$$
+
+$$w(A) = \prod_{i < j}\binom{A_{ij} + \alpha - 1}{\alpha - 1} \prod_i \binom{A_{ii}/2 + \alpha - 1}{\alpha - 1}.$$
+
 Note that $\alpha = 1$ corresponds to the uniform count. This more general estimate acts as the partition function of a generalized random multigraph model.
 
 ## Installation
@@ -65,6 +65,7 @@ The package can then be used to evaluate rapid analytic estimates of these count
 margin = [10,9,8,7,6,5,4,3]
 
 # Estimate the logarithm of the number of symmetric matrices with given margin sum
+# (number of multigraphs with given degree sequence)
 estimate = matrix_count.estimate_log_symmetric_matrices(margin,verbose=True,alpha=1)
 print("Estimated log count of symmetric matrices:", estimate)
 

@@ -57,8 +57,8 @@ std::pair<int,double> sample_log_weights(std::vector<double> log_weights){
         weights.push_back(std::exp(log_weight - log_sum));
     }
 
-    // Sample according to these weights
-    double p = std::rand() / (RAND_MAX + 1.0);
+    // Sample according to these weights (this is where all the randomness comes from), use the global rng mersenne twister
+    double p = dis(rng);
     double culm_weight = 0.0;
     for (int i = 0; i < weights.size(); ++i) {
         culm_weight += weights[i];
