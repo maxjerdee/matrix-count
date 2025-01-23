@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from matrix_count.sample import sample_symmetric_matrix
 
@@ -9,18 +10,18 @@ from . import _input_output, _util
 
 
 def count_log_symmetric_matrices(
-    row_sums,
+    row_sums: list[int],
     *,
-    diagonal_sum=None,
-    index_partition=None,
-    block_sums=None,
-    alpha=1.0,
-    estimate_order=3,
-    max_samples=1000,
-    error_target=0.001,
-    seed=None,
-    verbose=False,
-):
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    estimate_order: int = 3,
+    max_samples: int = 1000,
+    error_target: float = 0.001,
+    seed: int | None = None,
+    verbose: bool = False,
+) -> tuple[float, float]:
     """Dirichlet-multinomial moment-matching estimate of the logarithm
         of the number of symmetric non-negative matrices with given row sums.
 

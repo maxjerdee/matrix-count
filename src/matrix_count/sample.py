@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 import numpy as np
-
-from matrix_count.sample_core import sample_symmetric_matrix_core
+from numpy.typing import ArrayLike
 
 from . import _input_output
+from .sample_core import sample_symmetric_matrix_core
 
 
 def sample_symmetric_matrix(
-    row_sums,
+    row_sums: ArrayLike,
     *,
-    diagonal_sum=None,
-    index_partition=None,
-    block_sums=None,
-    alpha=1.0,
-    estimate_order=3,
-    verbose=False,
-    seed=None,
-):
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    estimate_order: int = 3,
+    verbose: bool = False,
+    seed: int | None = None,
+) -> tuple[ArrayLike, float]:
     """
     Sample a symmetric matrix with given row sums and diagonal sum.
 

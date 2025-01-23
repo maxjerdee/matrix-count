@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from . import _input_output, _util
 
@@ -11,7 +12,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
+def alpha_symmetric_2(
+    matrix_total: int, n: int, diagonal_sum: int | None = None, alpha: float = 1.0
+) -> float:
     """Dirichlet-Multinomial parameter alpha for the second order moment matching estimate
         of the number of symmetric matrices with given conditions.
 
@@ -41,7 +44,7 @@ def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
             ]
         )  # Overflow prevention
 
-        return np.exp(log_numerator - log_denominator)
+        return float(np.exp(log_numerator - log_denominator))
     # Fixed diagonal sum
     with np.errstate(divide="ignore"):  # Ignore divide by zero warning
         log_numerator = np.real(
@@ -95,10 +98,12 @@ def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
                 ]
             )
         )
-        return np.exp(log_numerator - log_denominator)
+        return float(np.exp(log_numerator - log_denominator))
 
 
-def alpha_symmetric_3(matrix_total, n, diagonal_sum=None, alpha=1.0):
+def alpha_symmetric_3(
+    matrix_total: int, n: int, diagonal_sum: int | None = None, alpha: float = 1.0
+) -> tuple[float, float]:
     """Dirichlet-Multinomial parameters alpha_plus and alpha_minus for the third order moment matching estimate
         of the number of symmetric matrices with given conditions.
 
@@ -229,15 +234,15 @@ def alpha_symmetric_3(matrix_total, n, diagonal_sum=None, alpha=1.0):
 
 
 def estimate_log_symmetric_matrices(
-    row_sums,
+    row_sums: list[int] | ArrayLike,
     *,
-    diagonal_sum=None,
-    index_partition=None,
-    block_sums=None,
-    alpha=1.0,
-    estimate_order=3,
-    verbose=False,
-):
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    estimate_order: int = 3,
+    verbose: bool = False,
+) -> float:
     """Dirichlet-multinomial moment-matching estimate of the logarithm
         of the number of symmetric non-negative matrices with given row sums.
 
@@ -294,7 +299,7 @@ def estimate_log_symmetric_matrices(
     if hardcoded_result is not None:
         return hardcoded_result
 
-    matrix_total = np.sum(row_sums)
+    matrix_total: int = np.sum(row_sums)
     n = len(row_sums)
     if diagonal_sum is None:
         if estimate_order == 2:
@@ -332,7 +337,7 @@ def estimate_log_symmetric_matrices(
             )
             for k in row_sums:
                 log_2 += _util._log_binom(k + alpha_minus - 1, alpha_minus - 1)
-            return _util._log_sum_exp([log_1, log_2]) - np.log(2)
+            return _util._log_sum_exp([log_1, log_2]) - float(np.log(2))
         raise NotImplementedError
 
     if estimate_order == 3:

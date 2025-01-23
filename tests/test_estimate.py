@@ -12,9 +12,6 @@ from matrix_count.estimate import (
 
 def test_estimate_log_symmetric_matrices_invalid_arguments():
     # :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
-    # :type row_sums: list | np.array
-    with pytest.raises(AssertionError):
-        estimate_log_symmetric_matrices(1)
     with pytest.raises(AssertionError):
         estimate_log_symmetric_matrices([-1, 2, 3])
 

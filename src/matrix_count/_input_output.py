@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from . import _util
 
@@ -13,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 def _log_symmetric_matrices_check_arguments(
-    row_sums,
+    row_sums: list[int] | ArrayLike,
     *,
-    diagonal_sum=None,
-    index_partition=None,
-    block_sums=None,
-    alpha=1.0,
-    estimate_order=3,
-    verbose=False,
-):
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    estimate_order: int = 3,
+    verbose: bool = False,
+) -> None:
     """Raises AssertionError for invalid inputs
 
     :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
@@ -50,7 +51,10 @@ def _log_symmetric_matrices_check_arguments(
         row_sums, (list, np.ndarray)
     ), "row_sums must be a list or np.array"
     assert all(
-        isinstance(x, (int, np.int32, np.int64)) and x >= 0 for x in row_sums
+        isinstance(x, (int, np.int32, np.int64)) for x in row_sums
+    ), "All elements in row_sums must be non-negative integers"
+    assert all(
+        x >= 0 for x in row_sums
     ), "All elements in row_sums must be non-negative integers"
 
     if diagonal_sum is not None:
@@ -60,11 +64,14 @@ def _log_symmetric_matrices_check_arguments(
     if index_partition is not None:
         assert isinstance(index_partition, list), "index_partition must be a list"
         assert all(
-            isinstance(x, int) and x >= 1 for x in index_partition
+            isinstance(x, int) for x in index_partition
+        ), "block_indices must be a list of integers greater than or equal to 1"
+        assert all(
+            x >= 1 for x in index_partition
         ), "block_indices must be a list of integers greater than or equal to 1"
 
         # Number of blocks
-        q = np.max(index_partition)
+        q: int = np.max(index_partition)
         if block_sums is not None:
             assert isinstance(
                 block_sums, np.ndarray
@@ -92,8 +99,17 @@ def _log_symmetric_matrices_check_arguments(
 
 
 def _simplify_input(
-    row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None
-):
+    row_sums: list[int] | ArrayLike,
+    *,
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+) -> tuple[
+    ArrayLike,
+    int | None,
+    list[int] | None,
+    ArrayLike | None,
+]:
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
     if index_partition is not None:
@@ -104,14 +120,14 @@ def _simplify_input(
 
 
 def _log_symmetric_matrices_hardcoded(
-    row_sums,
+    row_sums: list[int] | ArrayLike,
     *,
-    diagonal_sum=None,
-    index_partition=None,
-    block_sums=None,
-    alpha=1.0,
-    verbose=False,
-):
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    verbose: bool = False,
+) -> float | None:
     """Raises AssertionError for invalid inputs
 
     :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
@@ -138,12 +154,12 @@ def _log_symmetric_matrices_hardcoded(
     # Checking whether such a matrix is possible
     row_sums = np.array(row_sums)
 
-    matrix_total = np.sum(row_sums)
+    matrix_total: int = np.sum(row_sums)
 
     if matrix_total % 2 == 1:
         if verbose:
             logger.info("No matrices satisfy, margin total is odd")
-        return -np.inf
+        return float("-inf")
 
     n = len(row_sums)  # Number of vertices
 
@@ -154,25 +170,25 @@ def _log_symmetric_matrices_hardcoded(
                 logger.info(
                     "No matrices satisfy the even diagonal condition, given diagonal sum is odd"
                 )
-            return -np.inf
+            return float("-inf")
 
         # Compute the minimum possible diagonal entry that can be achieved (given the given number of off-diagonal edges)
-        m_in_min = 0
+        m_in_min: int = 0
         m_out = np.sum(row_sums) / 2 - diagonal_sum / 2
         for k in row_sums:
             m_in_min += max(0, np.ceil((k - m_out) / 2))
 
-        m_in_max = np.sum(np.floor(row_sums / 2))
+        m_in_max: int = np.sum(np.floor(row_sums / 2))
 
         if diagonal_sum < 2 * m_in_min or diagonal_sum > 2 * m_in_max:
             if verbose:
                 logger.info("No matrices satisfy the diagonal sum condition.")
-            return -np.inf
+            return float("-inf")
 
     if diagonal_sum == np.sum(row_sums):
         if verbose:
             logger.info("Hardcoded case: all off-diagonal entries are 0")
-        return 0  # log(1)
+        return 0.0  # log(1)
 
     # TODO: Add explicit treatment of alpha = 0
     assert alpha > 0, "alpha must be greater than 0, alpha = 0 is not yet supported"

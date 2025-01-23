@@ -41,7 +41,7 @@ def test_log_binom():
 
 
 def test_log_sum_exp():
-    test_array = [0, 1, 2]
+    test_array = [0.0, 1.0, 2.0]
     result = 0
     for a in test_array:
         result += np.exp(a)

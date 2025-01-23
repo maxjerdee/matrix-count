@@ -1,7 +1,13 @@
 from __future__ import annotations
 
-import numpy as np
+from numpy.typing import ArrayLike
 
-def sample_symmetric_matrix_core(
-    ks: list[int], diagonal_sum: int, alpha: float, seed: int
-) -> tuple[np.ndarray, float]: ...
+def sample_symmetric_matrix(
+    row_sums: ArrayLike,
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    seed: int | None = None,
+    verbose: bool = False,
+) -> tuple[ArrayLike, float]: ...
