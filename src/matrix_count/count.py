@@ -6,7 +6,7 @@ import numpy as np
 from matrix_count.sample import *
 
 
-def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, max_samples=1000, error_target=0.01, verbose=False):
+def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, max_samples=10000, error_target=0.01, verbose=False):
     """Dirichlet-multinomial moment-matching estimate of the logarithm 
         of the number of symmetric non-negative matrices with given row sums.
 

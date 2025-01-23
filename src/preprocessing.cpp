@@ -1,5 +1,4 @@
 
-#include <getopt.h>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -13,33 +12,6 @@
 #include "globals.h"
 #include "helpers.h"
 #include "preprocessing.h"
-
-std::tuple<std::string, std::string> get_options(int argc, char *argv[]) {
-    // Parse command line parameters
-    int opt;
-    std::string input_filename;
-    std::string output_filename;
-    // take command line arguments
-    while ((opt = getopt(argc, argv, "i:o:t:T:")) != -1) {
-        switch (opt) {
-        case 'i':
-            input_filename = optarg;
-            break;
-        case 'o':
-            output_filename = optarg;
-            break;
-        case 't':
-            max_time = atoi(optarg);
-            break;
-        case 'T':
-            max_iterations = atoi(optarg);
-            break;
-        default:
-            exit(EXIT_FAILURE);
-        }
-    }
-    return std::make_tuple(input_filename, output_filename);
-}
 
 std::tuple<std::vector<int>, int> read_data(std::string input_filename) {
     // Read data from input_filename

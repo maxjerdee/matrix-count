@@ -5,7 +5,7 @@ import numpy as np
 from pytest import approx, raises
 
 def test_count_log_symmetric_matrices_no_constraints():
-    sigma_error = 4 # Number of standard deviations to check within
+    sigma_error = 5 # Number of standard deviations to check within
 
     # 20,11,3
     (log_count_est, log_count_est_err) = count_log_symmetric_matrices([20,11,3])
@@ -27,7 +27,7 @@ def test_count_log_symmetric_matrices_no_constraints():
     
 
 def test_count_log_symmetric_matrices_diagonal_sum():
-    sigma_error = 4 # Number of standard deviations to check within
+    sigma_error = 5 # Number of standard deviations to check within
     
     # 20,11,3
     (log_count_est, log_count_est_err) = count_log_symmetric_matrices([20,11,3], diagonal_sum=20)

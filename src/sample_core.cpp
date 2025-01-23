@@ -5,7 +5,6 @@
 
 namespace py = pybind11;
 
-#include <getopt.h>
 #include <iostream>
 #include <fstream>
 #include <string>
