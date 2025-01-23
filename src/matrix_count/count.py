@@ -6,7 +6,7 @@ import numpy as np
 from matrix_count.sample import *
 
 
-def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, max_samples=1000, error_target=0.01, verbose=False):
+def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, max_samples=1000, error_target=0.001, seed=None, verbose=False):
     """Dirichlet-multinomial moment-matching estimate of the logarithm 
         of the number of symmetric non-negative matrices with given row sums.
 
@@ -31,6 +31,8 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
     :type max_samples: int, optional
     :param error_target: Target absolute error in the logarithm of the count. Defaults to 0.01.
     :type error_target: float, optional
+    :param seed: Seed for the random number generator. Defaults to None.
+    :type seed: int, optional
     :param verbose: Whether to print details of calculation. Defaults to False. 
     :type verbose: bool, optional
     :return log_count_est: The logarithm of the number of symmetric matrices under given conditions
@@ -50,12 +52,19 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
     if hardcoded_result is not None:
         return (hardcoded_result, 0) # No error in the hardcoded cases
     
+    # Set seed if provided
+    if seed is not None:
+        np.random.seed(seed)
+
     # Sample the matrices
+    MIN_NUM_SAMPLES = 10 # Minimum number of samples to take
     entropies = []
     log_count_est = 0 # Estimated log count
     log_count_err_est = np.inf # Estimated error in the log count
-    for i in range(max_samples):
-        (sample, entropy) = sample_symmetric_matrix(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, verbose=verbose)
+    for sample_num in range(max_samples):
+        # Seed to use for this sample
+        sample_seed = np.random.randint(0, 2**31-1) # If the integer is too large it screws up the pybind wrapper
+        (sample, entropy) = sample_symmetric_matrix(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, seed=sample_seed, verbose=verbose)
         entropy = entropy + _util._log_weight(sample, alpha) # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
         entropies.append(entropy)
         log_count_est = _util._log_sum_exp(entropies) - np.log(len(entropies))
@@ -65,8 +74,8 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
         if logE2 - 2*logE > 0.0001: # Estimate the error by the standard deviation of the counts TODO: treat this better
             log_std = 0.5 * (np.log(np.exp(0) - np.exp(2*logE - logE2)) + logE2)
             log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
-            if log_count_err_est < error_target: # Terminate if the error is below the target
+            if log_count_err_est < error_target and sample_num > MIN_NUM_SAMPLES: # Terminate if the error is below the target and we have taken enough samples
                 break 
-    
+
     return (log_count_est, log_count_err_est)
 

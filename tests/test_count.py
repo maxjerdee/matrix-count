@@ -8,11 +8,12 @@ def test_count_log_symmetric_matrices_no_constraints():
     sigma_error = 5 # Number of standard deviations to check within
 
     # 20,11,3
-    (log_count_est, log_count_est_err) = count_log_symmetric_matrices([20,11,3])
+    test_margin = [20,11,3]
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(test_margin)
     log_count_true = np.log(34)
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
     
-    (log_count_est, log_count_est_err) = count_log_symmetric_matrices([20,11,3], alpha=5)
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(test_margin, alpha=5)
     log_count_true = np.log(693809375)
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
 
@@ -24,7 +25,7 @@ def test_count_log_symmetric_matrices_no_constraints():
     (log_count_est, log_count_est_err) = count_log_symmetric_matrices([3,3,3,3,2,2], alpha=5)
     log_count_true = 19.8828
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
-    
+        
 
 def test_count_log_symmetric_matrices_diagonal_sum():
     sigma_error = 5 # Number of standard deviations to check within
@@ -39,11 +40,12 @@ def test_count_log_symmetric_matrices_diagonal_sum():
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
 
     # 3,3,3,3,2,2
-    (log_count_est, log_count_est_err) = count_log_symmetric_matrices([3,3,3,3,2,2], diagonal_sum=10)
+    test_margin = [3,3,3,3,2,2]
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(test_margin, diagonal_sum=10)
     log_count_true = 2.77259
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
     
-    (log_count_est, log_count_est_err) = count_log_symmetric_matrices([3,3,3,3,2,2], alpha=5, diagonal_sum=10)
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(test_margin, alpha=5, diagonal_sum=10)
     log_count_true = 15.6481
     assert log_count_est == approx(log_count_true, abs=sigma_error*log_count_est_err) # Chance that this just randomly fails
     

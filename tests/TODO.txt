@@ -1,0 +1,5 @@
+Currently there is also an issue with pre-commit lint loading the wrong version of node leading to an
+Exec format error.
+
+When building wheels for python 3.8, numpy version 1.24.4 is used and on import throws and error that
+generate_rng is not found. Should resolve this and include support for python 3.7
