@@ -1,31 +1,45 @@
 # Use the sample.pyi implementation of SIS in order to obtain counts and error estimates.
+from __future__ import annotations
 
-from . import _util
-from . import _input_output
 import numpy as np
-from matrix_count.sample import *
+
+from matrix_count.sample import sample_symmetric_matrix
+
+from . import _input_output, _util
 
 
-def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, max_samples=1000, error_target=0.001, seed=None, verbose=False):
-    """Dirichlet-multinomial moment-matching estimate of the logarithm 
+def count_log_symmetric_matrices(
+    row_sums,
+    *,
+    diagonal_sum=None,
+    index_partition=None,
+    block_sums=None,
+    alpha=1.0,
+    estimate_order=3,
+    max_samples=1000,
+    error_target=0.001,
+    seed=None,
+    verbose=False,
+):
+    """Dirichlet-multinomial moment-matching estimate of the logarithm
         of the number of symmetric non-negative matrices with given row sums.
 
-    :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers. 
+    :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
     :type row_sums: list | np.array
-    :param diagonal_sum: What the sum of the diagonal elements should be constrained to. 
+    :param diagonal_sum: What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
     :type diagonal_sum: int | None, optional
-    :param index_partition: A list of length n of integers ranging from 1 to q. 
-        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
+    :param index_partition: A list of length n of integers ranging from 1 to q.
+        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
     :type index_partition: list of int | None, optional
-    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix. 
+    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
     :type block_sums: np.ndarray, shape (q, q), dtype int
     :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1
     :type alpha: float, optional
-    :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3. 
+    :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
     :type estimate_order: int, optional
     :param max_samples: Maximum number of samples to take. Defaults to 1000.
     :type max_samples: int, optional
@@ -33,7 +47,7 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
     :type error_target: float, optional
     :param seed: Seed for the random number generator. Defaults to None.
     :type seed: int, optional
-    :param verbose: Whether to print details of calculation. Defaults to False. 
+    :param verbose: Whether to print details of calculation. Defaults to False.
     :type verbose: bool, optional
     :return log_count_est: The logarithm of the number of symmetric matrices under given conditions
     :rtype: float
@@ -42,40 +56,74 @@ def count_log_symmetric_matrices(row_sums, *, diagonal_sum=None, index_partition
     """
 
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
-    
+    _input_output._log_symmetric_matrices_check_arguments(
+        row_sums,
+        diagonal_sum=diagonal_sum,
+        index_partition=index_partition,
+        block_sums=block_sums,
+        alpha=alpha,
+        estimate_order=estimate_order,
+        verbose=verbose,
+    )
+
     # Remove empty margins
-    row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums)
+    row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(
+        row_sums,
+        diagonal_sum=diagonal_sum,
+        index_partition=index_partition,
+        block_sums=block_sums,
+    )
 
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
+    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(
+        row_sums,
+        diagonal_sum=diagonal_sum,
+        index_partition=index_partition,
+        block_sums=block_sums,
+        alpha=alpha,
+        verbose=verbose,
+    )
     if hardcoded_result is not None:
-        return (hardcoded_result, 0) # No error in the hardcoded cases
-    
+        return (hardcoded_result, 0)  # No error in the hardcoded cases
+
     # Set seed if provided
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     # Sample the matrices
-    MIN_NUM_SAMPLES = 10 # Minimum number of samples to take
+    MIN_NUM_SAMPLES = 10  # Minimum number of samples to take
     entropies = []
-    log_count_est = 0 # Estimated log count
-    log_count_err_est = np.inf # Estimated error in the log count
+    log_count_est = 0  # Estimated log count
+    log_count_err_est = np.inf  # Estimated error in the log count
     for sample_num in range(max_samples):
         # Seed to use for this sample
-        sample_seed = np.random.randint(0, 2**31-1) # If the integer is too large it screws up the pybind wrapper
-        (sample, entropy) = sample_symmetric_matrix(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, seed=sample_seed, verbose=verbose)
-        entropy = entropy + _util._log_weight(sample, alpha) # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
+        sample_seed = rng.integers(
+            0, 2**31 - 1
+        )  # If the integer is too large it screws up the pybind wrapper
+        (sample, entropy) = sample_symmetric_matrix(
+            row_sums,
+            diagonal_sum=diagonal_sum,
+            index_partition=index_partition,
+            block_sums=block_sums,
+            alpha=alpha,
+            seed=sample_seed,
+            verbose=verbose,
+        )
+        entropy = entropy + _util._log_weight(
+            sample, alpha
+        )  # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
         entropies.append(entropy)
         log_count_est = _util._log_sum_exp(entropies) - np.log(len(entropies))
 
-        logE2 = _util._log_sum_exp(2*np.array(entropies)) - np.log(len(entropies))
+        logE2 = _util._log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
         logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
-        if logE2 - 2*logE > 0.0001: # Estimate the error by the standard deviation of the counts TODO: treat this better
-            log_std = 0.5 * (np.log(np.exp(0) - np.exp(2*logE - logE2)) + logE2)
+        if (
+            logE2 - 2 * logE > 0.0001
+        ):  # Estimate the error by the standard deviation of the counts TODO: treat this better
+            log_std = 0.5 * (np.log(np.exp(0) - np.exp(2 * logE - logE2)) + logE2)
             log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
-            if log_count_err_est < error_target and sample_num > MIN_NUM_SAMPLES: # Terminate if the error is below the target and we have taken enough samples
-                break 
+            if (
+                log_count_err_est < error_target and sample_num > MIN_NUM_SAMPLES
+            ):  # Terminate if the error is below the target and we have taken enough samples
+                break
 
     return (log_count_est, log_count_err_est)
-

@@ -2,7 +2,7 @@ ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
 
-exclude: ^.cruft.json|.copier-answers.yml$
+exclude: ^.cruft.json|.copier-answers.yml$|.nb$|^examples/
 
 repos:
   - repo: https://github.com/adamchainz/blacken-docs
@@ -40,6 +40,7 @@ repos:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
         args: [--prose-wrap=always]
+        language_version: system # tells to use the system's Node.js
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.6.1"

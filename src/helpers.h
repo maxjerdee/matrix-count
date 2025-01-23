@@ -3,15 +3,15 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 double log_binom(double a, double b);
 // Overflow protected version of log(e^a + e^b) for precomputing log_q_vals
 double log_sum_exp(double a, double b);
 double log_sum_exp(std::vector<double> xs);
 
-std::pair<int,double> sample_log_weights(std::vector<double> log_weights);
+std::pair<int, double> sample_log_weights(std::vector<double> log_weights);
 
 double log_factorial(int n);
 double log_factorial2(int n);

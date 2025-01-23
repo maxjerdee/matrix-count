@@ -1,8 +1,23 @@
-from . import _input_output
+from __future__ import annotations
+
 import numpy as np
+
 from matrix_count.sample_core import sample_symmetric_matrix_core
 
-def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None, block_sums=None, alpha=1.0, estimate_order=3, verbose=False, seed=None):
+from . import _input_output
+
+
+def sample_symmetric_matrix(
+    row_sums,
+    *,
+    diagonal_sum=None,
+    index_partition=None,
+    block_sums=None,
+    alpha=1.0,
+    estimate_order=3,
+    verbose=False,
+    seed=None,
+):
     """
     Sample a symmetric matrix with given row sums and diagonal sum.
 
@@ -10,11 +25,11 @@ def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None
     :type ks: list of int
     :param diagonal_sum: Sum of the diagonal elements of the matrix.
     :type diagonal_sum: int
-    :param index_partition: A list of length n of integers ranging from 1 to q. 
-        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint. 
+    :param index_partition: A list of length n of integers ranging from 1 to q.
+        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
     :type index_partition: list of int | None, optional
-    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix. 
+    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
     :type block_sums: np.ndarray, shape (q, q), dtype int
     :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
@@ -31,17 +46,23 @@ def sample_symmetric_matrix(row_sums, *, diagonal_sum=None, index_partition=None
     """
 
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(row_sums, diagonal_sum=diagonal_sum, index_partition=index_partition, block_sums=block_sums, alpha=alpha, estimate_order=estimate_order, verbose=verbose)
+    _input_output._log_symmetric_matrices_check_arguments(
+        row_sums,
+        diagonal_sum=diagonal_sum,
+        index_partition=index_partition,
+        block_sums=block_sums,
+        alpha=alpha,
+        estimate_order=estimate_order,
+        verbose=verbose,
+    )
 
     # TODO: Implement the block_sums constraint and wrap here.
 
-    diagonal_sum = diagonal_sum if diagonal_sum is not None else -1 # -1 means no constraint
+    diagonal_sum = (
+        diagonal_sum if diagonal_sum is not None else -1
+    )  # -1 means no constraint
 
     # Seeding the sampler
-    if seed is None:
-        seed = int(np.random.randint(2**30))
-    else:
-        # Check that the seed is an integer
-        seed = int(seed)
+    seed = int(np.random.default_rng().integers(2**30)) if seed is None else int(seed)
 
     return sample_symmetric_matrix_core(row_sums, diagonal_sum, alpha, seed)
