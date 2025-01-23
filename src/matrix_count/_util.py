@@ -54,6 +54,17 @@ def _log_sum_exp(x):
     a = np.max(x)
     return a + np.log(np.sum(np.exp(x - a)))
 
+def _log_c(x):
+    """Version of logarithm that complexifies arguments to deal with negative numbers
+
+    :param x: float
+    :type x: float
+    :return: log(x)
+    :rtype: float
+    """
+    return np.log(x+0j)
+
+
 def _log_weight(A, alpha):
     """Logarithm of the weight of a matrix A under the Dirichlet-multinomial distribution with parameter alpha
 

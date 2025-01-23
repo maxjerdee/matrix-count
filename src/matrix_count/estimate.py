@@ -16,20 +16,37 @@ def alpha_symmetric_2(matrix_total, n, diagonal_sum=None, alpha=1.0):
     :rtype: float
     """
     if diagonal_sum is None:
-        numerator = matrix_total + (n + 1) * (matrix_total + n * (matrix_total - 1) - 2) * alpha
-        denominator = 2 * (matrix_total - 1) + n * ((n + 1) * alpha + matrix_total - 2)
-        result = numerator / denominator
+        # numerator = matrix_total + (n + 1) * (matrix_total + n * (matrix_total - 1) - 2) * alpha
+        log_numerator = _util._log_sum_exp([np.log(matrix_total), np.log(matrix_total + n * (matrix_total - 1) - 2) + np.log(n + 1) + np.log(alpha)]) # Overflow prevention
+    
+        # denominator = 2 * (matrix_total - 1) + n * ((n + 1) * alpha + matrix_total - 2)
+        log_denominator = _util._log_sum_exp([np.log(2 * (matrix_total - 1)), np.log(n) + np.log((n + 1) * alpha + matrix_total - 2)]) # Overflow prevention
+       
+        result = np.exp(log_numerator - log_denominator)
         return result
-    # Fixed diagonal sum
-    result = -(((-1 + n) * diagonal_sum**2 * (2 + (-1 + n) * n * alpha) + 
-                2 * (-1 + n) * n * diagonal_sum * alpha * (2 + (-1 + n) * n * alpha) - 
-                (-1 + n) * matrix_total**2 * (1 + n * alpha) * (2 + (-1 + n) * n * alpha) + 
-                (-2 + n) * (matrix_total - diagonal_sum) * (1 + n * alpha) * (matrix_total - diagonal_sum + (-1 + n) * n * alpha))
-              / (n * ((-1 + n) * diagonal_sum**2 * (2 + (-1 + n) * n * alpha) + 
-                      2 * (-1 + n) * n * diagonal_sum * alpha * (2 + (-1 + n) * n * alpha) - 
-                      (-1 + n) * matrix_total * (1 + n * alpha) * (2 + (-1 + n) * n * alpha) + 
-                      (-2 + n) * (matrix_total - diagonal_sum) * (1 + n * alpha) * (matrix_total - diagonal_sum + (-1 + n) * n * alpha))))
-    return result
+    # Fixed diagonal sum #########################################################################
+    # numerator = - (-1 + n) * diagonal_sum**2 * (2 + (-1 + n) * n * alpha) \
+    #             - 2 * (-1 + n) * n * diagonal_sum * alpha * (2 + (-1 + n) * n * alpha) \
+    #             + (-1 + n) * matrix_total**2 * (1 + n * alpha) * (2 + (-1 + n) * n * alpha) \
+    #             - (-2 + n) * (matrix_total - diagonal_sum) * (1 + n * alpha) * (matrix_total - diagonal_sum + (-1 + n) * n * alpha)
+    # Complexify to get signs right
+    with np.errstate(divide = 'ignore'): # Ignore divide by zero warning
+        log_numerator = np.real(_util._log_sum_exp([np.log(-1+0j) + np.log(-1 + n) + 2 * np.log(diagonal_sum) + np.log(2 + (-1 + n) * n * alpha),
+                                        np.log(-1+0j) + np.log(2) + np.log(-1 + n) + np.log(n) + np.log(diagonal_sum) + np.log(alpha) + np.log(2 + (-1 + n) * n * alpha),
+                                        np.log(n - 1) + 2 * np.log(matrix_total) + np.log(1 + n * alpha) + np.log(2 + (-1 + n) * n * alpha),
+                                        np.log(-1+0j) + np.log(-2 + n) + np.log(matrix_total - diagonal_sum) + np.log(1 + n * alpha) + np.log(matrix_total - diagonal_sum + (-1 + n) * n * alpha)]))
+        # denominator = (n * ((-1 + n) * diagonal_sum**2 * (2 + (-1 + n) * n * alpha) + 
+        #                   2 * (-1 + n) * n * diagonal_sum * alpha * (2 + (-1 + n) * n * alpha) - 
+        #                   (-1 + n) * matrix_total * (1 + n * alpha) * (2 + (-1 + n) * n * alpha) + 
+        #                   (-2 + n) * (matrix_total - diagonal_sum) * (1 + n * alpha) * (matrix_total - diagonal_sum + (-1 + n) * n * alpha)))
+        log_denominator = np.real(np.log(n) + _util._log_sum_exp([np.log(-1 + n) + 2 * np.log(diagonal_sum) + np.log(2 + (-1 + n) * n * alpha),
+                                                        np.log(2) + np.log(-1 + n) + np.log(n) + np.log(diagonal_sum) + np.log(alpha) + np.log(2 + (-1 + n) * n * alpha),
+                                                        np.log(-1+0j) + np.log(-1 + n) + np.log(matrix_total) + np.log(1 + n * alpha) + np.log(2 + (-1 + n) * n * alpha),
+                                                        np.log(-2 + n) + np.log(matrix_total - diagonal_sum) + np.log(1 + n * alpha) + np.log(matrix_total - diagonal_sum + (-1 + n) * n * alpha)]))
+        # print(np.exp(log_numerator), numerator, np.exp(log_denominator), denominator)
+        result = np.exp(log_numerator - log_denominator)
+        # result = numerator / denominator
+        return result
 
 def alpha_symmetric_3(matrix_total, n, diagonal_sum=None, alpha=1.0):
     """Dirichlet-Multinomial parameters alpha_plus and alpha_minus for the third order moment matching estimate
@@ -45,33 +62,55 @@ def alpha_symmetric_3(matrix_total, n, diagonal_sum=None, alpha=1.0):
     :rtype: float, float
     """
     if diagonal_sum is None:
-        common_numerator = (
-            matrix_total**2 * (4 + n + (1 + n) * (4 + n * (11 + 4 * n)) * alpha +
-                               n * (1 + n)**3 * (2 + n) * alpha**2) +
-            (1 + n) * matrix_total * (-4 + alpha * (-12 + n * (-17 - 11 * n -
-            (1 + n) * (7 + n * (4 + 3 * n)) * alpha +
-            n * (1 + n)**3 * alpha**2))) +
-            (1 + n)**2 * alpha * (8 + n * (4 + alpha * (2 +
-            n * (7 + 2 * n - (1 + n) * (4 + n) * alpha)))))
-        sqrt_term = np.sqrt(
-            (-1 + alpha + n * alpha) *
-            (matrix_total - (1 + n) * alpha) *
-            (matrix_total + n * (1 + n) * alpha) *
-            (-4 - 4 * n + 4 * matrix_total + 3 * n * matrix_total + n * (1 + n) * (n * (-1 + matrix_total) + matrix_total) * alpha) *
-            (4 * (-1 + matrix_total) + n * (-4 + 5 * matrix_total + (1 + n) * (-5 + 4 * matrix_total + n * (-4 + 5 * matrix_total)) * alpha +
-                                            n * (1 + n)**2 * (-2 + n * (-1 + matrix_total) + matrix_total) * alpha**2))
-        )
-        denominator = (
-            8 * (1 + n)**2 - 2 * (1 + n) * (8 + 5 * n) * matrix_total +
-            2 * (4 + n * (5 + 2 * n)) * matrix_total**2 +
-            n * (1 + n) * (2 * n * (1 + 2 * n) - 3 * n * (3 + n) * matrix_total +
-                           (4 + n * (3 + n)) * matrix_total**2 - 2 * (1 + matrix_total)) * alpha +
-            n**2 * (1 + n)**2 * (-3 + n * (-5 + matrix_total) + 5 * matrix_total) * alpha**2 +
-            2 * n**3 * (1 + n)**3 * alpha**3
-        )
+        # common_numerator = (
+        #     matrix_total**2 * (4 + n + (1 + n) * (4 + n * (11 + 4 * n)) * alpha + n * (1 + n)**3 * (2 + n) * alpha**2) \
+        #                     + (1 + n) * matrix_total * (-4 + alpha * (-12 + n * (-17 - 11 * n - (1 + n) * (7 + n * (4 + 3 * n)) * alpha + n * (1 + n)**3 * alpha**2))) \
+        #                     + (1 + n)**2 * alpha * (8 + n * (4 + alpha * (2 + n * (7 + 2 * n - (1 + n) * (4 + n) * alpha)))))
+        log_common_numerator = np.real(
+            _util._log_sum_exp([2 * _util._log_c(matrix_total) + _util._log_c(4 + n + (1 + n) * (4 + n * (11 + 4 * n)) * alpha + n * (1 + n)**3 * (2 + n) * alpha**2),
+                                _util._log_c(1 + n) + _util._log_c(matrix_total) + _util._log_c(-4 + alpha * (-12 + n * (-17 - 11 * n - (1 + n) * (7 + n * (4 + 3 * n)) * alpha + n * (1 + n)**3 * alpha**2))),
+                                _util._log_c(1 + n) + 2 * _util._log_c(alpha) + _util._log_c(8 + n * (4 + alpha * (2 + n * (7 + 2 * n - (1 + n) * (4 + n) * alpha))))]))
+        
+        # sqrt_term = np.sqrt(
+        #     (-1 + alpha + n * alpha) *
+        #     (matrix_total - (1 + n) * alpha) *
+        #     (matrix_total + n * (1 + n) * alpha) *
+        #     (-4 - 4 * n + 4 * matrix_total + 3 * n * matrix_total + n * (1 + n) * (n * (-1 + matrix_total) + matrix_total) * alpha) *
+        #     (4 * (-1 + matrix_total) + n * (-4 + 5 * matrix_total + (1 + n) * (-5 + 4 * matrix_total + n * (-4 + 5 * matrix_total)) * alpha +
+        #                                     n * (1 + n)**2 * (-2 + n * (-1 + matrix_total) + matrix_total) * alpha**2))
+        # )
+        log_sqrt_term = np.real(0.5*(_util._log_c(-1 + alpha + n * alpha) + \
+                             _util._log_c(matrix_total - (1 + n) * alpha) + \
+                            _util._log_c(matrix_total + n * (1 + n) * alpha) + \
+                            _util._log_c(-4 - 4 * n + 4 * matrix_total + 3 * n * matrix_total + n * (1 + n) * (n * (-1 + matrix_total) + matrix_total) * alpha) + \
+                            _util._log_c(4 * (-1 + matrix_total) + n * (-4 + 5 * matrix_total + (1 + n) * (-5 + 4 * matrix_total + n * (-4 + 5 * matrix_total)) * alpha + n * (1 + n)**2 * (-2 + n * (-1 + matrix_total) + matrix_total) * alpha**2))))
+        
+        # denominator = (
+        #     8 * (1 + n)**2 
+        #     - 2 * (1 + n) * (8 + 5 * n) * matrix_total 
+        #     + 2 * (4 + n * (5 + 2 * n)) * matrix_total**2 
+        #     + n * (1 + n) * (2 * n * (1 + 2 * n) - 3 * n * (3 + n) * matrix_total +
+        #                    (4 + n * (3 + n)) * matrix_total**2 - 2 * (1 + matrix_total)) * alpha
+        #     + n**2 * (1 + n)**2 * (-3 + n * (-5 + matrix_total) + 5 * matrix_total) * alpha**2
+        #     + 2 * n**3 * (1 + n)**3 * alpha**3
+        # )
+        log_denominator = np.real(_util._log_sum_exp([
+            _util._log_c(8 * (1 + n)**2), 
+            _util._log_c(-2) + _util._log_c(1 + n) + _util._log_c(8 + 5 * n) + _util._log_c(matrix_total),
+            _util._log_c(2 * (4 + n * (5 + 2 * n))) + 2*_util._log_c(matrix_total), 
+            _util._log_c(n * (1 + n)  * alpha) + _util._log_c((2 * n * (1 + 2 * n) - 3 * n * (3 + n) * matrix_total +
+                           (4 + n * (3 + n)) * matrix_total**2 - 2 * (1 + matrix_total))),
+            # _util._log_c(n**2 * (1 + n)**2 * alpha**2 * (-3 + n * (-5 + matrix_total) + 5 * matrix_total)),
+            2 * _util._log_c(n * (1 + n)* alpha) + _util._log_c((-3 + n * (-5 + matrix_total) + 5 * matrix_total)),
+            # _util._log_c(2 * n**3 * (1 + n)**3 * alpha**3)
+            _util._log_c(2) + 3 * (_util._log_c(n) + _util._log_c(1 + n) + _util._log_c(alpha))
+        ]))
 
-        alpha_plus = (common_numerator + sqrt_term) / denominator
-        alpha_minus = (common_numerator - sqrt_term) / denominator
+        # alpha_plus = (common_numerator + sqrt_term) / denominator
+        # alpha_minus = (common_numerator - sqrt_term) / denominator
+
+        alpha_plus =  np.real(np.exp(_util._log_sum_exp([log_common_numerator, log_sqrt_term]) - log_denominator))
+        alpha_minus =  np.real(np.exp(_util._log_sum_exp([log_common_numerator, np.log(-1+0j) + log_sqrt_term]) - log_denominator))
 
         return alpha_plus, alpha_minus
     # Fixed diagonal sum

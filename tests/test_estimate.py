@@ -82,6 +82,9 @@ def test_alpha_2():
 
     assert alpha_symmetric_2(200,10,diagonal_sum=100, alpha=5.0) == approx(13.1526, 0.001)
 
+    # Check that the overflow does not get messed up
+    # assert alpha_symmetric_2(200,10,diagonal_sum=200, alpha=1.0) == approx(1.81507, 0.001)
+
 def test_alpha_3():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
     alpha_pm = alpha_symmetric_3(200,10,diagonal_sum=None, alpha=1.0)
