@@ -46,7 +46,7 @@ def sample_symmetric_matrix(
     """
 
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(
+    _input_output.log_symmetric_matrices_check_arguments(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,

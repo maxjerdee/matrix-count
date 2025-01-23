@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def _log_symmetric_matrices_check_arguments(
+def log_symmetric_matrices_check_arguments(
     row_sums: list[int] | ArrayLike,
     *,
     diagonal_sum: int | None = None,
@@ -98,7 +98,7 @@ def _log_symmetric_matrices_check_arguments(
     assert isinstance(verbose, bool), "verbose must be a boolean"
 
 
-def _simplify_input(
+def simplify_input(
     row_sums: list[int] | ArrayLike,
     *,
     diagonal_sum: int | None = None,
@@ -119,7 +119,7 @@ def _simplify_input(
     return row_sums, diagonal_sum, index_partition, block_sums
 
 
-def _log_symmetric_matrices_hardcoded(
+def log_symmetric_matrices_hardcoded(
     row_sums: list[int] | ArrayLike,
     *,
     diagonal_sum: int | None = None,
@@ -202,6 +202,6 @@ def _log_symmetric_matrices_hardcoded(
         if verbose:
             logger.info("Hardcoded case: each margin is 1")
         # Recursively can compute that there are n!/n!! possible matrices
-        return _util._log_factorial(n) - _util._log_factorial2(n)
+        return _util.log_factorial(n) - _util.log_factorial2(n)
 
     return None

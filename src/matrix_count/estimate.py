@@ -28,7 +28,7 @@ def alpha_symmetric_2(
     :rtype: float
     """
     if diagonal_sum is None:
-        log_numerator = _util._log_sum_exp(
+        log_numerator = _util.log_sum_exp(
             [
                 np.log(matrix_total),
                 np.log(matrix_total + n * (matrix_total - 1) - 2)
@@ -37,7 +37,7 @@ def alpha_symmetric_2(
             ]
         )  # Overflow prevention
 
-        log_denominator = _util._log_sum_exp(
+        log_denominator = _util.log_sum_exp(
             [
                 np.log(2 * (matrix_total - 1)),
                 np.log(n) + np.log((n + 1) * alpha + matrix_total - 2),
@@ -48,7 +48,7 @@ def alpha_symmetric_2(
     # Fixed diagonal sum
     with np.errstate(divide="ignore"):  # Ignore divide by zero warning
         log_numerator = np.real(
-            _util._log_sum_exp(
+            _util.log_sum_exp(
                 [
                     np.log(-1 + 0j)
                     + np.log(-1 + n)
@@ -75,7 +75,7 @@ def alpha_symmetric_2(
         )
         log_denominator = np.real(
             np.log(n)
-            + _util._log_sum_exp(
+            + _util.log_sum_exp(
                 [
                     np.log(-1 + n)
                     + 2 * np.log(diagonal_sum)
@@ -118,18 +118,18 @@ def alpha_symmetric_3(
     """
     if diagonal_sum is None:
         log_common_numerator = np.real(
-            _util._log_sum_exp(
+            _util.log_sum_exp(
                 [
-                    2 * _util._log_c(matrix_total)
-                    + _util._log_c(
+                    2 * _util.log_c(matrix_total)
+                    + _util.log_c(
                         4
                         + n
                         + (1 + n) * (4 + n * (11 + 4 * n)) * alpha
                         + n * (1 + n) ** 3 * (2 + n) * alpha**2
                     ),
-                    _util._log_c(1 + n)
-                    + _util._log_c(matrix_total)
-                    + _util._log_c(
+                    _util.log_c(1 + n)
+                    + _util.log_c(matrix_total)
+                    + _util.log_c(
                         -4
                         + alpha
                         * (
@@ -143,9 +143,9 @@ def alpha_symmetric_3(
                             )
                         )
                     ),
-                    _util._log_c(1 + n)
-                    + 2 * _util._log_c(alpha)
-                    + _util._log_c(
+                    _util.log_c(1 + n)
+                    + 2 * _util.log_c(alpha)
+                    + _util.log_c(
                         8
                         + n
                         * (
@@ -160,17 +160,17 @@ def alpha_symmetric_3(
         log_sqrt_term = np.real(
             0.5
             * (
-                _util._log_c(-1 + alpha + n * alpha)
-                + _util._log_c(matrix_total - (1 + n) * alpha)
-                + _util._log_c(matrix_total + n * (1 + n) * alpha)
-                + _util._log_c(
+                _util.log_c(-1 + alpha + n * alpha)
+                + _util.log_c(matrix_total - (1 + n) * alpha)
+                + _util.log_c(matrix_total + n * (1 + n) * alpha)
+                + _util.log_c(
                     -4
                     - 4 * n
                     + 4 * matrix_total
                     + 3 * n * matrix_total
                     + n * (1 + n) * (n * (-1 + matrix_total) + matrix_total) * alpha
                 )
-                + _util._log_c(
+                + _util.log_c(
                     4 * (-1 + matrix_total)
                     + n
                     * (
@@ -189,39 +189,39 @@ def alpha_symmetric_3(
         )
 
         log_denominator = np.real(
-            _util._log_sum_exp(
+            _util.log_sum_exp(
                 [
-                    _util._log_c(8 * (1 + n) ** 2),
-                    _util._log_c(-2)
-                    + _util._log_c(1 + n)
-                    + _util._log_c(8 + 5 * n)
-                    + _util._log_c(matrix_total),
-                    _util._log_c(2 * (4 + n * (5 + 2 * n)))
-                    + 2 * _util._log_c(matrix_total),
-                    _util._log_c(n * (1 + n) * alpha)
-                    + _util._log_c(
+                    _util.log_c(8 * (1 + n) ** 2),
+                    _util.log_c(-2)
+                    + _util.log_c(1 + n)
+                    + _util.log_c(8 + 5 * n)
+                    + _util.log_c(matrix_total),
+                    _util.log_c(2 * (4 + n * (5 + 2 * n)))
+                    + 2 * _util.log_c(matrix_total),
+                    _util.log_c(n * (1 + n) * alpha)
+                    + _util.log_c(
                         2 * n * (1 + 2 * n)
                         - 3 * n * (3 + n) * matrix_total
                         + (4 + n * (3 + n)) * matrix_total**2
                         - 2 * (1 + matrix_total)
                     ),
-                    2 * _util._log_c(n * (1 + n) * alpha)
-                    + _util._log_c(-3 + n * (-5 + matrix_total) + 5 * matrix_total),
-                    _util._log_c(2)
-                    + 3 * (_util._log_c(n) + _util._log_c(1 + n) + _util._log_c(alpha)),
+                    2 * _util.log_c(n * (1 + n) * alpha)
+                    + _util.log_c(-3 + n * (-5 + matrix_total) + 5 * matrix_total),
+                    _util.log_c(2)
+                    + 3 * (_util.log_c(n) + _util.log_c(1 + n) + _util.log_c(alpha)),
                 ]
             )
         )
 
         alpha_plus = np.real(
             np.exp(
-                _util._log_sum_exp([log_common_numerator, log_sqrt_term])
+                _util.log_sum_exp([log_common_numerator, log_sqrt_term])
                 - log_denominator
             )
         )
         alpha_minus = np.real(
             np.exp(
-                _util._log_sum_exp(
+                _util.log_sum_exp(
                     [log_common_numerator, np.log(-1 + 0j) + log_sqrt_term]
                 )
                 - log_denominator
@@ -269,7 +269,7 @@ def estimate_log_symmetric_matrices(
     :rtype: float
     """
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(
+    _input_output.log_symmetric_matrices_check_arguments(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -280,7 +280,7 @@ def estimate_log_symmetric_matrices(
     )
 
     # Remove empty margins
-    row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(
+    row_sums, diagonal_sum, index_partition, block_sums = _input_output.simplify_input(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -288,7 +288,7 @@ def estimate_log_symmetric_matrices(
     )
 
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(
+    hardcoded_result = _input_output.log_symmetric_matrices_hardcoded(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -306,38 +306,38 @@ def estimate_log_symmetric_matrices(
             alpha_dm = alpha_symmetric_2(
                 matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
             )
-            result = _util._log_binom(
+            result = _util.log_binom(
                 matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
                 alpha * n * (n + 1) / 2 - 1,
             )
-            log_p = -_util._log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
+            log_p = -_util.log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
             for k in row_sums:
-                log_p += _util._log_binom(k + alpha_dm - 1, alpha_dm - 1)
+                log_p += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
             result += log_p
             return result
         if estimate_order == 3:
             alpha_plus, alpha_minus = alpha_symmetric_3(
                 matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
             )
-            log_1 = _util._log_binom(
+            log_1 = _util.log_binom(
                 matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
                 alpha * n * (n + 1) / 2 - 1,
             )
-            log_1 += -_util._log_binom(
+            log_1 += -_util.log_binom(
                 matrix_total + n * alpha_plus - 1, n * alpha_plus - 1
             )
             for k in row_sums:
-                log_1 += _util._log_binom(k + alpha_plus - 1, alpha_plus - 1)
-            log_2 = _util._log_binom(
+                log_1 += _util.log_binom(k + alpha_plus - 1, alpha_plus - 1)
+            log_2 = _util.log_binom(
                 matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
                 alpha * n * (n + 1) / 2 - 1,
             )
-            log_2 += -_util._log_binom(
+            log_2 += -_util.log_binom(
                 matrix_total + n * alpha_minus - 1, n * alpha_minus - 1
             )
             for k in row_sums:
-                log_2 += _util._log_binom(k + alpha_minus - 1, alpha_minus - 1)
-            return _util._log_sum_exp([log_1, log_2]) - float(np.log(2))
+                log_2 += _util.log_binom(k + alpha_minus - 1, alpha_minus - 1)
+            return _util.log_sum_exp([log_1, log_2]) - float(np.log(2))
         raise NotImplementedError
 
     if estimate_order == 3:
@@ -351,14 +351,14 @@ def estimate_log_symmetric_matrices(
         alpha_dm = alpha_symmetric_2(
             matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
         )
-        result = _util._log_binom(diagonal_sum / 2 + alpha * n - 1, alpha * n - 1)
-        result += _util._log_binom(
+        result = _util.log_binom(diagonal_sum / 2 + alpha * n - 1, alpha * n - 1)
+        result += _util.log_binom(
             (matrix_total - diagonal_sum) / 2 + alpha * n * (n - 1) / 2 - 1,
             alpha * n * (n - 1) / 2 - 1,
         )
-        result += -_util._log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
+        result += -_util.log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
         for k in row_sums:
-            result += _util._log_binom(k + alpha_dm - 1, alpha_dm - 1)
+            result += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
         return result
 
     raise NotImplementedError  # estimate_order != 2, 3

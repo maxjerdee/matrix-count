@@ -4,9 +4,13 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import ArrayLike
 
+from matrix_count._input_output import (
+    log_symmetric_matrices_check_arguments,
+    log_symmetric_matrices_hardcoded,
+    simplify_input,
+)
+from matrix_count._util import log_sum_exp, log_weight
 from matrix_count.sample import sample_symmetric_matrix
-
-from . import _input_output, _util
 
 
 def count_log_symmetric_matrices(
@@ -57,7 +61,7 @@ def count_log_symmetric_matrices(
     """
 
     # Check input validity
-    _input_output._log_symmetric_matrices_check_arguments(
+    log_symmetric_matrices_check_arguments(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -68,7 +72,7 @@ def count_log_symmetric_matrices(
     )
 
     # Remove empty margins
-    row_sums, diagonal_sum, index_partition, block_sums = _input_output._simplify_input(
+    row_sums, diagonal_sum, index_partition, block_sums = simplify_input(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -76,7 +80,7 @@ def count_log_symmetric_matrices(
     )
 
     # Check for hardcoded cases
-    hardcoded_result = _input_output._log_symmetric_matrices_hardcoded(
+    hardcoded_result = log_symmetric_matrices_hardcoded(
         row_sums,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
@@ -100,7 +104,7 @@ def count_log_symmetric_matrices(
         sample_seed = rng.integers(
             0, 2**31 - 1
         )  # If the integer is too large it screws up the pybind wrapper
-        (sample, entropy) = sample_symmetric_matrix(
+        sample, entropy = sample_symmetric_matrix(
             row_sums,
             diagonal_sum=diagonal_sum,
             index_partition=index_partition,
@@ -109,19 +113,24 @@ def count_log_symmetric_matrices(
             seed=sample_seed,
             verbose=verbose,
         )
-        entropy = entropy + _util._log_weight(
+        entropy = entropy + log_weight(
             sample, alpha
         )  # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
         entropies.append(entropy)
-        log_count_est = _util._log_sum_exp(entropies) - np.log(len(entropies))
+        log_count_est = log_sum_exp(entropies) - np.log(len(entropies))
 
-        logE2 = _util._log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
-        logE = _util._log_sum_exp(entropies) - np.log(len(entropies))
+        log_E_entropy_2 = log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
+        log_E_entropy = log_sum_exp(entropies) - np.log(len(entropies))
         if (
-            logE2 - 2 * logE > 0.0001
-        ):  # Estimate the error by the standard deviation of the counts TODO: treat this better
-            log_std = 0.5 * (np.log(np.exp(0) - np.exp(2 * logE - logE2)) + logE2)
-            log_count_err_est = np.exp(log_std - 0.5 * np.log(len(entropies)) - logE)
+            log_E_entropy_2 - 2 * log_E_entropy > 0.0001
+        ):  # Estimate the error by the standard deviation of the counts
+            log_std = 0.5 * (
+                np.log(np.exp(0) - np.exp(2 * log_E_entropy - log_E_entropy_2))
+                + log_E_entropy_2
+            )
+            log_count_err_est = np.exp(
+                log_std - 0.5 * np.log(len(entropies)) - log_E_entropy
+            )
             if (
                 log_count_err_est < error_target and sample_num > MIN_NUM_SAMPLES
             ):  # Terminate if the error is below the target and we have taken enough samples
