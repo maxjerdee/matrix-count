@@ -51,6 +51,9 @@ jobs:
       - name: Install correct numpy version
         run: python -m pip install "numpy==2.0.2"
 
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.20
+
       - name: Build Wheel
         env:
           CIBW_SKIP:

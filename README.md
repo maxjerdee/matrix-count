@@ -3,8 +3,7 @@
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 
-[![PyPI version][pypi-version]][pypi-link]
-[![PyPI platforms][pypi-platforms]][pypi-link]
+[![PyPI version][pypi-version]][[pypi-link](https://pypi.org/project/pairwise-ranking/)] [![PyPI platforms][pypi-platforms]][[pypi-link](https://pypi.org/project/pairwise-ranking/)]
 
 <!-- SPHINX-START -->
 
