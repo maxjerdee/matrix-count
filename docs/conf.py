@@ -61,8 +61,20 @@ html_theme_options: dict[str, Any] = {
 }
 
 myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
     "colon_fence",
 ]
+
+# LaTeX configuration
+latex_elements = {
+    "preamble": r"""
+    \usepackage{amsmath}
+    \usepackage{amsfonts}
+    \usepackage{amssymb}
+    """,
+}
+
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

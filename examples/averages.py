@@ -1,15 +1,11 @@
-# Example of how to use these samples to evaluate the correlator of the matrix entries
+# Example of how samples can be combined to compute averages of functions of symmetric matrices with given margins.
+# In this case the average product of two off-diagonal entries is computed.
+
 from __future__ import annotations
 
 import numpy as np
 
 import matrix_count
-
-
-def log_sum_exp(x):
-    a = np.max(x)
-    return a + np.log(np.sum(np.exp(x - a)))
-
 
 samples = []
 entropies = []
@@ -30,8 +26,8 @@ log_correlators = np.array(log_correlators)
 
 # Expectations can be calculated as E[f(A)] = 1/(\sum_{A_i} 1/Q(A_i))\sum_{A_i} f(A_i)/Q(A_i)
 # where Q(A_i) = exp(-entropy(A_i))
-log_correlator = log_sum_exp(log_correlators + entropies) - log_sum_exp(entropies)
-log_correlator_squared = log_sum_exp(2 * log_correlators + entropies) - log_sum_exp(
+log_correlator = matrix_count.log_sum_exp(log_correlators + entropies) - matrix_count.log_sum_exp(entropies)
+log_correlator_squared = matrix_count.log_sum_exp(2 * log_correlators + entropies) - matrix_count.log_sum_exp(
     entropies
 )
 log_correlator_std = 0.5 * (
