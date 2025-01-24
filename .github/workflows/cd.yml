@@ -51,7 +51,7 @@ jobs:
       - name: Install correct numpy version
         run: python -m pip install "numpy>=2.2.1"
 
-      - uses: pypa/cibuildwheel@v2.20
+      - uses: pypa/cibuildwheel@v2.22
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -77,7 +77,7 @@ jobs:
           merge-multiple: true
 
       - name: Generate artifact attestations
-        uses: actions/attest-build-provenance@v1.4.1
+        uses: actions/attest-build-provenance@v2.2.0
         with:
           subject-path: "dist/*"
 
