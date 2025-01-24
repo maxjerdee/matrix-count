@@ -5,7 +5,7 @@
 :hidden:
 :caption: Contents:
 
-modules
+modules.md
 ```
 
 ```{include} ../README.md

@@ -23,27 +23,30 @@ def log_symmetric_matrices_check_arguments(
     estimate_order: int = 3,
     verbose: bool = False,
 ) -> None:
-    """Raises AssertionError for invalid inputs
+    """
+    Raises AssertionError for invalid inputs.
 
-    :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
-    :type row_sums: list | np.array
-    :param diagonal_sum: What the sum of the diagonal elements should be constrained to.
+    Parameters
+    ----------
+    row_sums : ArrayLike
+        Row sums of the matrix. Length n array-like of non-negative integers.
+    diagonal_sum : int or None, optional
+        What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
-    :type diagonal_sum: int | None, optional
-    :param index_partition: A list of length n of integers ranging from 1 to q.
+    index_partition : list of int or None, optional
+        A list of length n of integers ranging from 1 to q.
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
-    :type index_partition: list of int | None, optional
-    :param block_sums: A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
+    block_sums : ArrayLike, optional
+        A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
-    :type block_sums: np.ndarray, shape (q, q), dtype int
-    :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
-        A value of 1 gives the uniform count of matrices, defaults to 1
-    :type alpha: float, optional
-    :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
-    :type estimate_order: int, optional
-    :param verbose: Whether to print details of calculation. Defaults to False.
-    :type verbose: bool, optional
+    alpha : float, optional
+        Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
+        A value of 1 gives the uniform count of matrices, defaults to 1.
+    estimate_order : int, optional
+        Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
+    verbose : bool, optional
+        Whether to print details of calculation. Defaults to False.
     """
 
     # Checking input validity
@@ -110,6 +113,29 @@ def simplify_input(
     list[int] | None,
     ArrayLike | None,
 ]:
+    """
+    Simplify the input by removing instances where a row sum is 0.
+
+    Parameters
+    ----------
+    row_sums : ArrayLike
+        Row sums of the matrix. Length n array-like of non-negative integers.
+    diagonal_sum : int or None, optional
+        What the sum of the diagonal elements should be constrained to.
+        Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
+    index_partition : list of int or None, optional
+        A list of length n of integers ranging from 1 to q.
+        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
+        A value of None results in no block sum constraint, defaults to None.
+    block_sums : ArrayLike, optional
+        A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
+        A value of None results in no block sum constraint, defaults to None.
+
+    Returns
+    -------
+    tuple of (ArrayLike, int or None, list of int or None, ArrayLike or None)
+        Simplified row_sums, diagonal_sum, index_partition, and block_sums.
+    """
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
     if index_partition is not None:
@@ -128,28 +154,34 @@ def log_symmetric_matrices_hardcoded(
     alpha: float = 1.0,
     verbose: bool = False,
 ) -> float | None:
-    """Raises AssertionError for invalid inputs
+    """
+    Raises AssertionError for invalid inputs.
 
-    :param row_sums: Row sums of the matrix. Length n array-like of non-negative integers.
-    :type row_sums: list | np.array
-    :param diagonal_sum: What the sum of the diagonal elements should be constrained to.
+    Parameters
+    ----------
+    row_sums : ArrayLike
+        Row sums of the matrix. Length n array-like of non-negative integers.
+    diagonal_sum : int or None, optional
+        What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
-    :type diagonal_sum: int | None, optional
-    :param index_partition: A list of length n of integers ranging from 1 to q.
+    index_partition : list of int or None, optional
+        A list of length n of integers ranging from 1 to q.
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
-    :type index_partition: list of int | None, optional
-    :param block_sums: A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
+    block_sums : ArrayLike, optional
+        A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
-    :type block_sums: np.ndarray, shape (q, q), dtype int
-    :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
-        A value of 1 gives the uniform count of matrices, defaults to 1
-    :type alpha: float, optional
-    :param verbose: Whether to print details of calculation. Defaults to False.
-    :type verbose: bool, optional
-    :return: Logarithm of the number of symmetric matrices satisfying the constraints if hardcoded,
+    alpha : float, optional
+        Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
+        A value of 1 gives the uniform count of matrices, defaults to 1.
+    verbose : bool, optional
+        Whether to print details of calculation. Defaults to False.
+
+    Returns
+    -------
+    float or None
+        Logarithm of the number of symmetric matrices satisfying the constraints if hardcoded,
         None if no hardcoding is possible.
-    :rtype: float | None
     """
     # Checking whether such a matrix is possible
     row_sums = np.array(row_sums)

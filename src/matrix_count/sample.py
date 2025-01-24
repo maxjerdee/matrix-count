@@ -21,28 +21,33 @@ def sample_symmetric_matrix(
     """
     Sample a symmetric matrix with given row sums and diagonal sum.
 
-    :param ks: List of row sums.
-    :type ks: list of int
-    :param diagonal_sum: Sum of the diagonal elements of the matrix.
-    :type diagonal_sum: int
-    :param index_partition: A list of length n of integers ranging from 1 to q.
+    Parameters
+    ----------
+    row_sums : ArrayLike
+        List of row sums.
+    diagonal_sum : int, optional
+        Sum of the diagonal elements of the matrix.
+    index_partition : list of int or None, optional
+        A list of length n of integers ranging from 1 to q.
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
-    :type index_partition: list of int | None, optional
-    :param block_sums: A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
+    block_sums : ArrayLike, optional
+        A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
-    :type block_sums: np.ndarray, shape (q, q), dtype int
-    :param alpha: Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
-        A value of 1 gives the uniform count of matrices, defaults to 1
-    :type alpha: float, optional
-    :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
-    :type estimate_order: int, optional
-    :param verbose: Whether to print verbose output, defaults to False.
-    :type verbose: bool, optional
-    :param seed: Seed for the random number generator, defaults to None.
-    :type seed: int, optional
-    :return: A symmetric matrix with given row sums and diagonal sum, and the log probability of the matrix.
-    :rtype: np.ndarray, float
+    alpha : float, optional
+        Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
+        A value of 1 gives the uniform count of matrices, defaults to 1.
+    estimate_order : int, optional
+        Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
+    verbose : bool, optional
+        Whether to print verbose output, defaults to False.
+    seed : int, optional
+        Seed for the random number generator, defaults to None.
+
+    Returns
+    -------
+    tuple of (ArrayLike, float)
+        A symmetric matrix with given row sums and diagonal sum, and the log probability of the matrix.
     """
 
     # Check input validity
