@@ -4,6 +4,7 @@
 [![Documentation Status][rtd-badge]][rtd-link]
 
 [![PyPI version][pypi-version]][[pypi-link](https://pypi.org/project/pairwise-ranking/)] [![PyPI platforms][pypi-platforms]][[pypi-link](https://pypi.org/project/pairwise-ranking/)]
+[![codecov](https://codecov.io/github/maxjerdee/matrix-count/graph/badge.svg?token=1GSB7GLW7K)](https://codecov.io/github/maxjerdee/matrix-count)
 
 <!-- SPHINX-START -->
 
