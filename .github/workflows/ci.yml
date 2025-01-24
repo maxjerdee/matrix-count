@@ -50,6 +50,9 @@ jobs:
             runs-on: ubuntu-latest
 
     steps:
+      - name: Set safe directory for Git
+        run: git config --global --add safe.directory /github/workspace
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
