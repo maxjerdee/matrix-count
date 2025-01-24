@@ -9,6 +9,8 @@ examples/sampling.md
 examples/averages.md
 ```
 
+# matrix-count
+
 ```{include} ../README.md
 :start-after: <!-- SPHINX-START -->
 ```

@@ -3,19 +3,18 @@
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 
-[![PyPI version][pypi-version]][https://pypi.org/project/pairwise-ranking/]
-[![PyPI platforms][pypi-platforms]][https://pypi.org/project/pairwise-ranking/]
-[![codecov](https://codecov.io/github/maxjerdee/matrix-count/graph/badge.svg?token=1GSB7GLW7K)](https://codecov.io/github/maxjerdee/matrix-count)
+[![PyPI version][pypi-version]][pypi-link]
+[![PyPI platforms][pypi-platforms]][pypi-link]
+[![codecov][codecov-badge]][codecov-link]
 
 <!-- SPHINX-START -->
 
 <!-- prettier-ignore-start -->
 [actions-badge]:            https://github.com/maxjerdee/matrix-count/workflows/CI/badge.svg
 [actions-link]:             https://github.com/maxjerdee/matrix-count/actions
-[conda-badge]:              https://img.shields.io/conda/vn/conda-forge/matrix-count
-[conda-link]:               https://github.com/conda-forge/matrix-count-feedstock
+[codecov-badge]:            https://codecov.io/github/maxjerdee/matrix-count/coverage.svg?token=1GSB7GLW7K
+[codecov-link]:             https://codecov.io/github/maxjerdee/matrix-count
 [github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
-[github-discussions-link]:  https://github.com/maxjerdee/matrix-count/discussions
 [pypi-link]:                https://pypi.org/project/matrix-count/
 [pypi-platforms]:           https://img.shields.io/pypi/pyversions/matrix-count
 [pypi-version]:             https://img.shields.io/pypi/v/matrix-count
@@ -23,8 +22,6 @@
 [rtd-link]:                 https://matrix-count.readthedocs.io/en/latest/?badge=latest
 
 <!-- prettier-ignore-end -->
-
-# matrix-count
 
 ### Estimating nonnegative integer matrix counting problems
 
