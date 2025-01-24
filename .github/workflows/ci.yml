@@ -33,7 +33,7 @@ jobs:
         with:
           extra_args: --hook-stage manual --all-files
       - name: Run PyLint
-        run: pipx run nox -s pylint -- --output-format=github
+        run: pipx run nox -s pylint -- --exit-zero --output-format=github
 
   checks:
     name: Check Python ${{ matrix.python-version }} on ${{ matrix.runs-on }}

@@ -48,10 +48,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install correct numpy version with SIMD disabled
-        run: |
-          export CFLAGS="-DNPY_DISABLE_CPU_FEATURES=1"
-          python -m pip install "numpy==2.0.2"
+      - name: Set environment variable to disable SIMD
+        shell: bash
+        run: echo "CFLAGS=-DNPY_DISABLE_CPU_FEATURES=1" >> $GITHUB_ENV
+
+      - name: Install correct numpy version
+        run: python -m pip install "numpy==2.0.2"
 
       - uses: pypa/cibuildwheel@v2.20
 

@@ -100,7 +100,7 @@ def count_log_symmetric_matrices(
     rng = np.random.default_rng(seed)
 
     # Sample the matrices
-    MIN_NUM_SAMPLES = 10  # Minimum number of samples to take
+    min_num_samples = 10  # Minimum number of samples to take
     entropies = []
     log_count_est = 0  # Estimated log count
     log_count_err_est = np.inf  # Estimated error in the log count
@@ -109,7 +109,8 @@ def count_log_symmetric_matrices(
         sample_seed = rng.integers(
             0, 2**31 - 1
         )  # If the integer is too large it screws up the pybind wrapper
-        sample, entropy = sample_symmetric_matrix(
+        # pylint seems to not see the binding on the following line
+        sample, entropy = sample_symmetric_matrix(  # pylint: disable=unpacking-non-sequence
             row_sums,
             diagonal_sum=diagonal_sum,
             index_partition=index_partition,
@@ -137,7 +138,7 @@ def count_log_symmetric_matrices(
                 log_std - 0.5 * np.log(len(entropies)) - log_E_entropy
             )
             if (
-                log_count_err_est < error_target and sample_num > MIN_NUM_SAMPLES
+                log_count_err_est < error_target and sample_num >= min_num_samples
             ):  # Terminate if the error is below the target and we have taken enough samples
                 break
 
