@@ -29,7 +29,7 @@ jobs:
         run: echo "export CFLAGS='-DNPY_DISABLE_CPU_FEATURES=1'" >> $GITHUB_ENV
 
       - name: Build Wheel
-        run: cibuildwheel --output-dir wheelhouse --only pp310-manylinux_i686
+        run: cibuildwheel --output-dir wheelhouse --only pp39-manylinux_aarch64
 
       - name: Upload Wheel
         uses: actions/upload-artifact@v4
