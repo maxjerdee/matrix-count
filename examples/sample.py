@@ -15,7 +15,7 @@ true_count = np.exp(7.51098)
 num_samples = 10000
 
 # Estimate the number of matrices with given margins
-estimate = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=2)
+estimate_2 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=2)
 
 estimate_3 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=3)
 
@@ -44,7 +44,7 @@ logEs = np.array(logEs)
 log_count_err_ests = np.array(log_count_err_ests)
 inds = np.arange(len(logEs), step=plot_frequency)
 plt.errorbar(inds, logEs[inds], yerr=log_count_err_ests[inds], label="SIS estimate")
-plt.plot(inds, estimate * np.ones(len(inds)), label="Analytical estimate (2nd)")
+plt.plot(inds, estimate_2 * np.ones(len(inds)), label="Analytical estimate (2nd)")
 plt.plot(inds, estimate_3 * np.ones(len(inds)), label="Analytical estimate (3rd)")
 if true_count is not None:
     plt.plot(inds, np.log(true_count) * np.ones(len(inds)), label="True count")
