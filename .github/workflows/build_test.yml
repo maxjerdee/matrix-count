@@ -16,17 +16,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set environment variable to disable SIMD
-        run: echo "export CFLAGS='-DNPY_DISABLE_CPU_FEATURES=1'" >> $GITHUB_ENV
-
       - name: Install correct numpy version
         run: python -m pip install "numpy==2.0.2"
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.20
 
-      - name: Set environment variable to disable SIMD
-        run: echo "export CFLAGS='-DNPY_DISABLE_CPU_FEATURES=1'" >> $GITHUB_ENV
+      - name: Set up Docker Buildx
+        run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx create --use
 
       - name: Build Wheel
         run: cibuildwheel --output-dir wheelhouse --only pp39-manylinux_aarch64
