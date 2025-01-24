@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
+import tqdm
 from numpy.typing import ArrayLike
 
 from matrix_count._input_output import (
@@ -104,7 +105,8 @@ def count_log_symmetric_matrices(
     entropies = []
     log_count_est = 0  # Estimated log count
     log_count_err_est = np.inf  # Estimated error in the log count
-    for sample_num in range(max_samples):
+    progress = tqdm.tqdm(range(max_samples))
+    for sample_num in progress:
         # Seed to use for this sample
         sample_seed = rng.integers(
             0, 2**31 - 1
@@ -136,6 +138,9 @@ def count_log_symmetric_matrices(
             )
             log_count_err_est = np.exp(
                 log_std - 0.5 * np.log(len(entropies)) - log_E_entropy
+            )
+            progress.set_postfix_str(
+                f"Log count: {log_E_entropy:.3f} +/- {log_count_err_est:.3f}"
             )
             if (
                 log_count_err_est < error_target and sample_num >= min_num_samples
