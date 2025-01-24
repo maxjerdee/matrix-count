@@ -54,6 +54,7 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.20
 
+      # pp39-manylinux_i686 pp310-manylinux_i686 appear to be failing for SIMD reasons, and pp39-manylinux_aarch64 pp310-manylinux_aarch64 are hanging on build
       - name: Build Wheel
         env:
           CIBW_SKIP:
@@ -92,5 +93,4 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           # Remember to tell (test-)pypi about this repo before publishing
-          # Remove this line to publish to PyPI
-          repository-url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/matrix-count
