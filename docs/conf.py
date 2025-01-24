@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import importlib.metadata
+import sys
+from pathlib import Path
 from typing import Any
+
+# Add the source directory to sys.path
+sys.path.insert(0, str(Path("../src").resolve()))
 
 project = "matrix-count"
 copyright = "2025, Max Jerdee"
@@ -17,6 +22,13 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
 ]
+
+# Autodoc default options
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 
 source_suffix = [".rst", ".md"]
 exclude_patterns = [

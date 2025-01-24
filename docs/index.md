@@ -3,7 +3,9 @@
 ```{toctree}
 :maxdepth: 2
 :hidden:
+:caption: Contents:
 
+modules
 ```
 
 ```{include} ../README.md

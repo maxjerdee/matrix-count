@@ -28,11 +28,15 @@
 
 # matrix-count
 
+:::
+
 ### Estimating nonnegative integer matrix counting problems
+
+::: :::
 
 ##### Maximilian Jerdee
 
-We provide analytic estimates and sampling-based algorithms for a variety of
+::: We provide analytic estimates and sampling-based algorithms for a variety of
 counting problems defined over non-negative integer matrices.
 
 For example, we may count the number of non-negative symmetric integer matrices
