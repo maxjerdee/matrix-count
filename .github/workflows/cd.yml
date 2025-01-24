@@ -48,6 +48,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set environment variable to disable SIMD
+        run: echo "NPY_NO_SMP=1" >> $GITHUB_ENV
+
       - name: Install correct numpy version
         run: python -m pip install "numpy==2.0.2"
 
