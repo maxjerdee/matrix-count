@@ -92,5 +92,5 @@ jobs:
         with:
           # Remember to tell (test-)pypi about this repo before publishing
           repository-url: https://test.pypi.org/legacy/
-        env:
-          TWINE_VERBOSE: 1
+          username: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
