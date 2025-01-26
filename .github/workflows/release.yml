@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os: [windows-latest, macos-13, macos-14] # ubuntu-latest,
 
     steps:
       - uses: actions/checkout@v4
@@ -91,4 +91,4 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           # Remember to tell (test-)pypi about this repo before publishing
-          repository-url: https://test.pypi.org/matrix-count
+          repository-url: https://test.pypi.org/legacy/
