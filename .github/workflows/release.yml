@@ -94,3 +94,5 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           user: mjerdee
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        env:
+          TWINE_VERBOSE: 1
