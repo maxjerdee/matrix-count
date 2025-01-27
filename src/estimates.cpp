@@ -80,6 +80,12 @@ double alpha_constrained(int n, int m, int m_in) {
 
   // Calculate the result
   double result = numerator / (denominator + ALPHA_EPSILON);
+
+  // Switch a negative result to inf
+  if (result < 0) {
+    result = 10000.0;
+  }
+
   return result;
 }
 
@@ -94,5 +100,11 @@ double alpha_zero_diagonal(int n, int m) {
 
   // Calculate the result
   double result = numerator / (denominator + ALPHA_EPSILON);
+
+  // Switch a negative result to inf
+  if (result < 0) {
+    result = 10000.0;
+  }
+
   return result;
 }
