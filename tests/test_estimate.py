@@ -53,6 +53,10 @@ def test_estimate_log_symmetric_matrices_invalid_arguments():
     with pytest.raises(AssertionError):
         estimate_log_symmetric_matrices([1, 2, 3], estimate_order=4)
 
+    # Case: binary_matrix margin is too large
+    with pytest.raises(AssertionError):
+        estimate_log_symmetric_matrices([1, 2, 3], binary_matrix=True)
+
 
 def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: diagonal_sum is odd
@@ -74,9 +78,6 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: total of off-diagonal is odd
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=3) == -np.inf
 
-    # Case: binary_matrix margin is too large
-    assert estimate_log_symmetric_matrices([1, 2, 3], binary_matrix=True) == -np.inf
-
 
 def test_estimate_log_symmetric_matrices_hardcoded():
     # Case: each margin is 1
@@ -85,6 +86,11 @@ def test_estimate_log_symmetric_matrices_hardcoded():
     # Case: all off-diagonal are 0
     assert estimate_log_symmetric_matrices(
         [2, 2, 2, 2], diagonal_sum=8
+    ) == pytest.approx(np.log(1))
+
+    # Case: binary_matrix margins are all n - 1
+    assert estimate_log_symmetric_matrices(
+        [2, 2, 2], binary_matrix=True
     ) == pytest.approx(np.log(1))
 
 
@@ -145,3 +151,8 @@ def test_estimate_log_symmetric_matrices():
     assert estimate_log_symmetric_matrices(
         [20, 11, 3], diagonal_sum=20, alpha=5, estimate_order=2
     ) == pytest.approx(18.5925, 0.001)
+
+    # Binary matrices
+    assert estimate_log_symmetric_matrices(
+        [1, 1, 1, 1, 2], estimate_order=2, binary_matrix=True
+    ) == pytest.approx(1.01697, 0.001)

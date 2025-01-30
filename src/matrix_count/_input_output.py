@@ -63,6 +63,11 @@ def log_symmetric_matrices_check_arguments(
         x >= 0 for x in row_sums
     ), "All elements in row_sums must be non-negative integers"
     assert isinstance(binary_matrix, bool), "binary_matrix must be a boolean"
+    if binary_matrix:
+        n = len(row_sums)  # Matrix size
+        assert all(
+            k < n for k in row_sums
+        ), "All elements in row_sums must be less than the matrix size."
 
     if diagonal_sum is not None:
         assert isinstance(diagonal_sum, int), "diagonal_sum must be an integer"
@@ -153,6 +158,15 @@ def simplify_input(
             row_sums = np.array(
                 [n - 1 - x for x in row_sums]
             )  # Flip all margins to the complement (n-1 possible nonzero entries in each row)
+            # Possibly need to simplify again to remove zeros
+            return simplify_input(
+                row_sums,
+                binary_matrix=True,
+                diagonal_sum=diagonal_sum,
+                index_partition=index_partition,
+                block_sums=block_sums,
+                verbose=verbose,
+            )
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
     removed_indices = np.where(row_sums == 0)[0]
@@ -218,53 +232,46 @@ def log_symmetric_matrices_hardcoded(
             logger.info("No matrices satisfy, margin total is odd")
         return float("-inf")
 
-    n = len(row_sums)  # Number of vertices
+    n = len(row_sums)  # Matrix size
 
     if binary_matrix:
-        n = len(row_sums)  # Matrix size
-        for k in row_sums:
-            if k > n - 1:
+        pass
+    else:
+        if diagonal_sum is not None:
+            # If the diagonal sum is constrained to be even, the provided diagonal sum must be even
+            if diagonal_sum % 2 == 1:
                 if verbose:
                     logger.info(
-                        "No matrices satisfy, a margin entry is greater than or equal to the matrix size"
+                        "No matrices satisfy the even diagonal condition, given diagonal sum is odd"
                     )
                 return float("-inf")
 
-    if diagonal_sum is not None:
-        # If the diagonal sum is constrained to be even, the provided diagonal sum must be even
-        if diagonal_sum % 2 == 1:
+            # Compute the minimum possible diagonal entry that can be achieved (given the given number of off-diagonal edges)
+            m_in_min: int = 0
+            m_out = np.sum(row_sums) / 2 - diagonal_sum / 2
+            for k in row_sums:
+                m_in_min += max(0, np.ceil((k - m_out) / 2))
+
+            m_in_max: int = np.sum(np.floor(row_sums / 2))
+
+            if diagonal_sum < 2 * m_in_min or diagonal_sum > 2 * m_in_max:
+                if verbose:
+                    logger.info("No matrices satisfy the diagonal sum condition.")
+                return float("-inf")
+
+        if diagonal_sum == np.sum(row_sums):
             if verbose:
-                logger.info(
-                    "No matrices satisfy the even diagonal condition, given diagonal sum is odd"
-                )
-            return float("-inf")
+                logger.info("Hardcoded case: all off-diagonal entries are 0")
+            return 0.0  # log(1)
 
-        # Compute the minimum possible diagonal entry that can be achieved (given the given number of off-diagonal edges)
-        m_in_min: int = 0
-        m_out = np.sum(row_sums) / 2 - diagonal_sum / 2
-        for k in row_sums:
-            m_in_min += max(0, np.ceil((k - m_out) / 2))
+        # TODO: Add explicit treatment of alpha = 0
+        assert alpha > 0, "alpha must be greater than 0, alpha = 0 is not yet supported"
 
-        m_in_max: int = np.sum(np.floor(row_sums / 2))
+        # TODO: Add the block sums case
+        assert index_partition is None, "block sum constraints are not yet supported"
+        assert block_sums is None, "block sum constraints are not yet supported"
 
-        if diagonal_sum < 2 * m_in_min or diagonal_sum > 2 * m_in_max:
-            if verbose:
-                logger.info("No matrices satisfy the diagonal sum condition.")
-            return float("-inf")
-
-    if diagonal_sum == np.sum(row_sums):
-        if verbose:
-            logger.info("Hardcoded case: all off-diagonal entries are 0")
-        return 0.0  # log(1)
-
-    # TODO: Add explicit treatment of alpha = 0
-    assert alpha > 0, "alpha must be greater than 0, alpha = 0 is not yet supported"
-
-    # TODO: Add the block sums case
-    assert index_partition is None, "block sum constraints are not yet supported"
-    assert block_sums is None, "block sum constraints are not yet supported"
-
-    # Explicit case where each margin is 1 (0 entries have been removed)
+    # Explicit case where each margin is 1 (0 entries have been removed), applies whether binary_matrix is True or False
     if matrix_total == n:
         if verbose:
             logger.info("Hardcoded case: each margin is 1")

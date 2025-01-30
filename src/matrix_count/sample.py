@@ -61,6 +61,8 @@ def sample_symmetric_matrix(
         verbose=verbose,
     )
 
+    # Notably we do not simplify these cases before passing to the c++ code, since then we would need to undo that simplification when returning samples.
+
     # TODO: Implement the block_sums constraint and wrap here.
 
     diagonal_sum = (
