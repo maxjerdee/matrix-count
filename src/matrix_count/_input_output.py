@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 def log_symmetric_matrices_check_arguments(
     row_sums: list[int] | ArrayLike,
     *,
+    binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
@@ -30,6 +31,8 @@ def log_symmetric_matrices_check_arguments(
     ----------
     row_sums : ArrayLike
         Row sums of the matrix. Length n array-like of non-negative integers.
+    binary_matrix : bool, optional
+        Whether the matrix is binary (0 or 1) instead of non-negative integer valued. Defaults to False.
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
@@ -59,6 +62,7 @@ def log_symmetric_matrices_check_arguments(
     assert all(
         x >= 0 for x in row_sums
     ), "All elements in row_sums must be non-negative integers"
+    assert isinstance(binary_matrix, bool), "binary_matrix must be a boolean"
 
     if diagonal_sum is not None:
         assert isinstance(diagonal_sum, int), "diagonal_sum must be an integer"
@@ -104,9 +108,11 @@ def log_symmetric_matrices_check_arguments(
 def simplify_input(
     row_sums: list[int] | ArrayLike,
     *,
+    binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
+    verbose: bool = False,
 ) -> tuple[
     ArrayLike,
     int | None,
@@ -120,6 +126,8 @@ def simplify_input(
     ----------
     row_sums : ArrayLike
         Row sums of the matrix. Length n array-like of non-negative integers.
+    binary_matrix : bool, optional
+        Whether the matrix is binary (0 or 1) instead of non-negative integer valued. Defaults to False.
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
@@ -136,11 +144,25 @@ def simplify_input(
     tuple of (ArrayLike, int or None, list of int or None, ArrayLike or None)
         Simplified row_sums, diagonal_sum, index_partition, and block_sums.
     """
+    # Flipping 0 <-> 1 for binary matrices if most entries are 1
+    if binary_matrix:
+        n = len(row_sums)
+        if np.sum(row_sums) > n * (n - 1) / 2:  # If most entries are 1
+            if verbose:
+                logger.info("Flipped row sums to binary complement problem.")
+            row_sums = np.array(
+                [n - 1 - x for x in row_sums]
+            )  # Flip all margins to the complement (n-1 possible nonzero entries in each row)
     # Remove instances where a row sum is 0
     row_sums = np.array(row_sums)
-    if index_partition is not None:
-        index_partition = index_partition[row_sums != 0]
-    row_sums = row_sums[row_sums != 0]
+    removed_indices = np.where(row_sums == 0)[0]
+    if len(removed_indices) > 0:
+        if verbose:
+            logger.info("Removed rows with zero sum.")
+        if index_partition is not None:
+            index_partition = index_partition[row_sums != 0]
+        # TODO: Remove the block_sums cases
+        row_sums = row_sums[row_sums != 0]
 
     return row_sums, diagonal_sum, index_partition, block_sums
 
@@ -148,6 +170,7 @@ def simplify_input(
 def log_symmetric_matrices_hardcoded(
     row_sums: list[int] | ArrayLike,
     *,
+    binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
@@ -161,6 +184,8 @@ def log_symmetric_matrices_hardcoded(
     ----------
     row_sums : ArrayLike
         Row sums of the matrix. Length n array-like of non-negative integers.
+    binary_matrix : bool, optional
+        Whether the matrix is binary (0 or 1) instead of non-negative integer valued. Defaults to False.
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
@@ -194,6 +219,16 @@ def log_symmetric_matrices_hardcoded(
         return float("-inf")
 
     n = len(row_sums)  # Number of vertices
+
+    if binary_matrix:
+        n = len(row_sums)  # Matrix size
+        for k in row_sums:
+            if k > n - 1:
+                if verbose:
+                    logger.info(
+                        "No matrices satisfy, a margin entry is greater than or equal to the matrix size"
+                    )
+                return float("-inf")
 
     if diagonal_sum is not None:
         # If the diagonal sum is constrained to be even, the provided diagonal sum must be even

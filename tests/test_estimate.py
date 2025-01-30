@@ -74,6 +74,9 @@ def test_estimate_log_symmetric_matrices_no_matrices():
     # Case: total of off-diagonal is odd
     assert estimate_log_symmetric_matrices([1, 2, 3], diagonal_sum=3) == -np.inf
 
+    # Case: binary_matrix margin is too large
+    assert estimate_log_symmetric_matrices([1, 2, 3], binary_matrix=True) == -np.inf
+
 
 def test_estimate_log_symmetric_matrices_hardcoded():
     # Case: each margin is 1

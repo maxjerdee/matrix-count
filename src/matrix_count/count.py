@@ -17,6 +17,7 @@ from matrix_count.sample import sample_symmetric_matrix
 def count_log_symmetric_matrices(
     row_sums: list[int],
     *,
+    binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
@@ -35,6 +36,8 @@ def count_log_symmetric_matrices(
     ----------
     row_sums : ArrayLike
         Row sums of the matrix. Length n array-like of non-negative integers.
+    binary_matrix : bool, optional
+        Whether the matrix is binary (0 or 1) instead of non-negative integer valued. Defaults to False.
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
@@ -69,6 +72,7 @@ def count_log_symmetric_matrices(
     # Check input validity
     log_symmetric_matrices_check_arguments(
         row_sums,
+        binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
         block_sums=block_sums,
@@ -80,9 +84,11 @@ def count_log_symmetric_matrices(
     # Remove empty margins
     row_sums, diagonal_sum, index_partition, block_sums = simplify_input(
         row_sums,
+        binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
         block_sums=block_sums,
+        verbose=verbose,
     )
 
     # Check for hardcoded cases
