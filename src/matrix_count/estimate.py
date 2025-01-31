@@ -318,6 +318,7 @@ def estimate_log_symmetric_matrices(
     # Check for hardcoded cases
     hardcoded_result = _input_output.log_symmetric_matrices_hardcoded(
         row_sums,
+        binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
         block_sums=block_sums,
@@ -406,6 +407,8 @@ def estimate_log_symmetric_matrices(
             )
             for k in row_sums:
                 result -= _util.log_factorial(k)
+            # Dirichlet-multinomial weight (note that this is a trivial calculation for binary matrices)
+            result += matrix_total / 2 * np.log(alpha)
             return result
         if estimate_order == 3:
             raise NotImplementedError

@@ -9,15 +9,16 @@ import numpy as np
 import matrix_count
 from matrix_count import _util
 
-test_margin = [3, 3, 3, 3, 2, 2]
-true_count = np.exp(7.51098)
+# test_margin = [6, 4, 3, 3, 2, 2, 1, 1]
+# true_count = 47
+
+test_margin = [4, 3, 3, 2, 2, 1, 1]
+true_count = 65
 
 num_samples = 10000
 
 # Estimate the number of matrices with given margins
-estimate_2 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=2)
-
-estimate_3 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=3)
+estimate = matrix_count.estimate_log_symmetric_matrices(test_margin, binary_matrix=True, estimate_order=2)
 
 logEs = []
 log_count_err_ests = []
@@ -26,7 +27,7 @@ entropies = []
 for t in range(num_samples):
     if t % 100 == 0:
         pass
-    sample, entropy = matrix_count.sample_symmetric_matrix(test_margin)
+    sample, entropy = matrix_count.sample_symmetric_matrix(test_margin, binary_matrix=True, seed=t)
     entropies.append(entropy)
     # log(Delta log E) = log(Delta E/E) = 1/2log(E2 - E^2) - 1/2 log(n) - log(E)
     logE2 = _util.log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
@@ -44,11 +45,10 @@ logEs = np.array(logEs)
 log_count_err_ests = np.array(log_count_err_ests)
 inds = np.arange(len(logEs), step=plot_frequency)
 plt.errorbar(inds, logEs[inds], yerr=log_count_err_ests[inds], label="SIS estimate")
-plt.plot(inds, estimate_2 * np.ones(len(inds)), label="Analytic estimate (2nd)")
-plt.plot(inds, estimate_3 * np.ones(len(inds)), label="Analytic estimate (3rd)")
+plt.plot(inds, estimate * np.ones(len(inds)), label="Analytic estimate")
 if true_count is not None:
     plt.plot(inds, np.log(true_count) * np.ones(len(inds)), label="True count")
 plt.xlabel("Number of samples")
 plt.ylabel("Log count")
 plt.legend()
-plt.savefig("sample.png")
+plt.savefig("sample_binary.png")

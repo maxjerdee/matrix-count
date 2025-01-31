@@ -57,9 +57,6 @@ std::tuple<std::vector<int>, int> read_data(std::string input_filename) {
   // Remove any 0s from the margin
   ks.erase(std::remove(ks.begin(), ks.end(), 0), ks.end());
 
-  // Perhaps later we will observe that it is beneficial to sort the margins in
-  // decreasing order
-
   return std::make_tuple(ks, m_in);
 }
 

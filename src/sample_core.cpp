@@ -64,7 +64,8 @@ sample_symmetric_matrix_core(const std::vector<int> &ks, int diagonal_sum,
     for (int s_prev = 0; s_prev < m + 1; ++s_prev) {
       log_g_i_sP_sT[i][s_prev] = new double[m + 1];
       for (int s_this = 0; s_this < m + 1; ++s_this) {
-        log_g_i_sP_sT[i][s_prev][s_this] = 0;
+        log_g_i_sP_sT[i][s_prev][s_this] =
+            -std::numeric_limits<double>::infinity();
       }
     }
   }
@@ -103,7 +104,6 @@ sample_table(std::vector<int> ks, int m_in) {
     auto [m_in_sampled, diagonal_sum_entropy] = sample_diagonal_sum(ks);
     m_in = m_in_sampled;
     entropy += diagonal_sum_entropy;
-    // printf("Sampled m_in = %d, entropy = %f\n", m_in, diagonal_sum_entropy);
   }
 
   // Sample the diagonal entries of the table among the possibilities with the
@@ -150,20 +150,16 @@ std::pair<int, double> sample_diagonal_sum(std::vector<int> ks) {
     }
   }
 
-  // print(valid_m_ins);
-
   // Get the (log) counts for the number of possible matrices for the valid
   // diagonal sums
   std::vector<double> log_counts;
   for (int m_in : valid_m_ins) {
     log_counts.push_back(log_Omega_fixed_diagonal(ks, m_in));
   }
-  // print(log_counts);
 
-  // If we globally ocmpute the above this can just be done once.
+  // If we globally compute the above this can just be done once.
   auto [m_in_index, entropy] =
       sample_log_weights(log_counts); // Sample the index of the log_counts
-  // print(entropy);
   return std::make_pair(valid_m_ins[m_in_index],
                         entropy); // Return the corresponding diagonal sum
 }
@@ -191,31 +187,20 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
   // is the entry A_{i,i}/2 of the final table. We use variable names s_prev =
   // s_{i-1}, s_this = s_i, s_next = s_{i+1}, d_this = d_i, d_next = d_{i+1}
   // Note that the i range from 1 to n in these expressions, although the code
-  // will be 0-indexed So for example k_i = ks[i-1], s_i = s[i-1], etc.
+  // will be 0-indexed. So for example k_i = ks[i-1], s_i = s[i-1], etc.
 
   // These are going to be weighted by the number of symmetric matrices that can
-  // fill the off-diagonal entries (i.e. zero digaonal sum)
+  // fill the off-diagonal entries (i.e. zero diagonal sum)
   double alpha_DM = alpha_zero_diagonal(n, m_out) +
                     ALPHA_EPSILON; // The relevant alpha for the approximation
-  // The hard constraints are imposed by the bounds of the loops that compute
-  // the sums that make up the g_i(s_prev,s_this)
-
-  // // To prevent overflow issues make sure alpha_DM does not get too large
-  // if(alpha_DM > 10000){
-  //     alpha_DM = 10000.1;
-  // }
-  // if(alpha_DM < -10000){
-  //     alpha_DM = -10000.1;
-  // }
 
   // For efficiency we only loop over s_{i} with possibly nonzero \sum_{s_{i+1}}
   // g_i(s_i, s_{i+1})
-  std::vector<int> min_s_this =
-      std::vector<int>(n + 1, 10000); // Track the smallest s_i with nonzero
-                                      // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
-  std::vector<int> max_s_this =
-      std::vector<int>(n + 1, -1); // Track the largest s_i with nonzero
-                                   // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
+  std::vector<int> min_s_this(n + 1,
+                              10000);     // Track the smallest s_i with nonzero
+                                          // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
+  std::vector<int> max_s_this(n + 1, -1); // Track the largest s_i with nonzero
+                                          // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
 
   min_s_this[n] = m_in; // For the last entry, the total sum of the diagonal
                         // entries is m_in by definition.
@@ -236,8 +221,6 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
         // alpha_DM - 1)
         log_g_i_sP_sT[i][s_prev][s_this] =
             log_binom(ks[i] - 2 * d_this + alpha_DM - 1, alpha_DM - 1);
-        // printf("log_g[%d][%d][%d] = %f\n", i, s_prev, s_this,
-        // log_g_i_sP_sT[i][s_prev][s_this]);
       }
       min_s_this[i] =
           std::max(0, m_in - d_max); // The smallest s_i with nonzero
@@ -253,21 +236,17 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
       // g_i(s_{i-1},s_i) = h_i(s_{i-1},s_i)*\sum_{s_i} g_{i+1}(s_i,s_{i+1})
       for (int s_this = min_s_this[i + 1]; s_this <= max_s_this[i + 1];
            s_this++) { // Writing in the nonzero log g_n(s_{i-1},s_i)
-        // printf("i = %d, s_this = %d\n", i, s_this);
-        // printf("d_min = %d, d_max = %d\n", d_min, d_max);
         for (int d_this = d_min; d_this <= std::min(d_max, s_this);
              d_this++) {                // Also ensure that s_{i-1} >= 0
           int s_prev = s_this - d_this; // s_{i-1}
-          // printf("i = %d, s_prev = %d, s_this = %d\n", i, s_prev, s_this);
-          if (i != 0 || s_prev == 0) { // The first s_{i-1} is always 0
+          if (i != 0 || s_prev == 0) {  // The first s_{i-1} is always 0
             double log_h =
                 log_binom(ks[i] - 2 * d_this + alpha_DM - 1, alpha_DM - 1);
             std::vector<double> log_gs; // The log(g) values that the next g is
                                         // defined as a sum over.
-            // 0,(k_{i+1}-m_out)/2<=d_{i+1}<=k_{i+1}/2, also make sure that
-            // s_{i+1} <= m_in
             for (int d_next = d_next_min;
-                 d_next <= std::min(d_next_max, m_in - s_this); d_next++) {
+                 d_next <= std::min(d_next_max, m_in - s_this);
+                 d_next++) {                // Make sure that s_{i+1} <= m_in
               int s_next = s_this + d_next; // s_{i+1}
               if (i != n - 2 ||
                   s_next == m_in) { // The last s_{i+1} is always m_in
@@ -275,9 +254,7 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
               }
             }
             log_g_i_sP_sT[i][s_prev][s_this] = log_h + log_sum_exp(log_gs);
-            // printf("log_g[%d][%d][%d] = %f\n", i, s_prev, s_this,
-            // log_g_i_sP_sT[i][s_prev][s_this]); Update the min_s_this and
-            // max_s_this
+            // Update the min_s_this and max_s_this
             if (s_prev < min_s_this[i]) {
               min_s_this[i] = s_prev;
             }
@@ -289,14 +266,12 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
       }
     }
   }
-  // print(min_s_this);
-  // print(max_s_this);
+
   // Sample from the distribution given by the g
   std::vector<int> ds;
   double entropy = 0;
   int s_prev = 0;
   for (int i = 0; i < n; i++) {
-    // printf("i = %d\n", i);
     int d_min =
         std::max(0.0, std::ceil(static_cast<double>(ks[i] - m_out) / 2));
     int d_max = std::floor(static_cast<double>(ks[i]) / 2);
@@ -309,8 +284,6 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
           s_this <= max_s_this[i + 1]) { // Make sure that the resulting s_this
                                          // is valid
         if (i != n - 1 || s_this == m_in) {
-          // printf("s_prev = %d, s_this = %d, log_g = %f\n", s_prev, s_this,
-          // log_g_i_sP_sT[i][s_prev][s_this]);
           weights.push_back(log_g_i_sP_sT[i][s_prev][s_this]);
           d_choices.push_back(d_this);
         }
@@ -346,19 +319,15 @@ double sample_off_diagonal_table(std::vector<std::vector<int>> &table,
   }
   for (int i = 0; i < n; i++) {
     // Re-initialize the log table
-    // TODO: Fix the code so that we don't need to allocate this memory every
-    // time..
     for (int i = 0; i < n; i++) {
       for (int s_prev = 0; s_prev < m + 1; s_prev++) {
         for (int s_this = 0; s_this < m + 1; s_this++) {
-          // -inf
           log_g_i_sP_sT[i][s_prev][s_this] =
               -std::numeric_limits<double>::infinity();
         }
       }
     }
     entropy += sample_table_row(table, ks_left, is);
-    // exit(0);
   }
   return entropy;
 }
@@ -367,8 +336,6 @@ double sample_off_diagonal_table(std::vector<std::vector<int>> &table,
 // as well as the margin ks to be updated)
 double sample_table_row(std::vector<std::vector<int>> &table,
                         std::vector<int> &ks, std::vector<int> &is) {
-  // print("ks:");
-  // print(ks);
   // Remove the rows that have degree 0
   std::vector<int> k_zero_inds;
   for (int i = 0; i < is.size(); i++) {
@@ -381,8 +348,6 @@ double sample_table_row(std::vector<std::vector<int>> &table,
     is.erase(is.begin() + ind);
     ks.erase(ks.begin() + ind);
   }
-  // print(ks);
-  // print(is);
   int n_left = ks.size(); // Number of remaining rows
   int m_out = std::accumulate(ks.begin(), ks.end(), 0) /
               2; // Number of remaining off-diagonal edges
@@ -400,37 +365,18 @@ double sample_table_row(std::vector<std::vector<int>> &table,
     alpha_DM = alpha_zero_diagonal(n_left - 1, 2 * m_out - 2 * ks[0]) +
                ALPHA_EPSILON; // The relevant alpha for the approximation
   }
-  // 2 2 2 2 2 -> total is 10, so there are 5 off-diagonal edges,
-  // if(n_left == 6){
-  //     print("alpha:");
-  //     print(alpha);
-  // }
-  // print(ks);
-  // std::cout << (n_left - 1) << " " << (2*m_out - 2*ks[0]) << std::endl;
-  // std::cout << "alpha_DM: " << alpha_DM << std::endl;
 
-  // // To prevent overflow issues make sure alpha_DM does not get too large
-  // if(alpha_DM > 10000){
-  //     alpha_DM = 10000.1;
-  // }
-  // if(alpha_DM < -10000){
-  //     alpha_DM = -10000.1;
-  // }
+  // For efficiency we only loop over s_{i} with possibly nonzero \sum_{s_{i+1}}
+  // g_i(s_i, s_{i+1})
+  std::vector<int> min_s_this(n_left,
+                              10000); // Track the smallest s_i with nonzero
+                                      // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
+  std::vector<int> max_s_this(n_left, -1); // Track the largest s_i with nonzero
+                                           // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
 
-  // h_i(s_prev, s_this) = binom(ks[i]- as[i] + alpha - 1, alpha -
-  // 1)*1{0,ks[i]+ks[1]-m<=as[i]<=ks[i]} The hard constraints should just be
-  // imposed by the bounds of the loops that compute the sums that make up the
-  // g_i(s_prev,s_this)
-  int a_min_next;
-  int a_max_next;
-  std::vector<int> min_s_this =
-      std::vector<int>(n_left, 10000); // Track the smallest s_i with nonzero
-                                       // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
-  std::vector<int> max_s_this =
-      std::vector<int>(n_left, -1); // Track the largest s_i with nonzero
-                                    // \sum_{s_{i+1}} g_i(s_i, s_{i+1})
   min_s_this[n_left - 1] = ks[0];
   max_s_this[n_left - 1] = ks[0];
+
   for (int i = n_left - 1 - 1; i >= 0; i--) {
     int a_min = std::max(0, ks[i + 1] + ks[0] - m_out);
     int a_max = ks[i + 1];
@@ -443,10 +389,6 @@ double sample_table_row(std::vector<std::vector<int>> &table,
         log_g_i_sP_sT[i][s_prev][s_this] =
             log_binom(ks[i + 1] - a_this + alpha_DM - 1,
                       alpha_DM - 1); // log h_i(s_{i-1},s_i)
-                                     // if(n_left == 6){
-        //     printf("log_g[%d][%d][%d] = %f\n", i, s_prev, s_this,
-        //     log_g_i_sP_sT[i][s_prev][s_this]);
-        // }
       }
       min_s_this[i] =
           std::max(0, ks[0] - a_max); // The smallest s_i with nonzero
@@ -479,13 +421,6 @@ double sample_table_row(std::vector<std::vector<int>> &table,
               }
             }
             log_g_i_sP_sT[i][s_prev][s_this] = log_h + log_sum_exp(log_gs);
-            // if(n_left == 6){
-            //     print(log_gs);
-            //     // printf("ks[i+1] = %d, a_this = %d\n", ks[i+1], a_this);
-            //     printf("log_binom(%f,%f)\n",ks[i+1] - a_this + alpha_DM -
-            //     1,alpha_DM - 1); print(log_h); printf("log_g[%d][%d][%d] =
-            //     %f\n", i, s_prev, s_this, log_g_i_sP_sT[i][s_prev][s_this]);
-            // }
             // Update the min_s_this and max_s_this
             if (s_prev < min_s_this[i]) {
               min_s_this[i] = s_prev;
@@ -498,19 +433,14 @@ double sample_table_row(std::vector<std::vector<int>> &table,
       }
     }
   }
-  // print("min_s_this");
-  // print(min_s_this);
-  // print(max_s_this);
+
   // Sample from the distribution given by the g
   std::vector<int> as;
   double entropy = 0;
   int s_prev = 0;
-  // print(n_left - 1);
   for (int i = 0; i < n_left - 1; i++) {
-    // printf("i = %d\n", i);
     int a_min = std::max(0, ks[i + 1] + ks[0] - m_out);
     int a_max = ks[i + 1];
-    // printf("a_min = %d, a_max = %d\n", a_min, a_max);
     std::vector<double> weights; // Weights given by the valid weights
     std::vector<int> a_choices;  // Choices of degree
     for (int a_this = a_min; a_this <= std::min(a_max, ks[0] - s_prev);
@@ -520,28 +450,17 @@ double sample_table_row(std::vector<std::vector<int>> &table,
           s_this <= max_s_this[i + 1]) { // Make sure that the resulting s_this
                                          // is valid
         if (i != n_left - 1 - 1 || s_this == ks[0]) {
-          // printf("i = %d, s_prev = %d, s_this = %d\n", i, s_prev, s_this);
           weights.push_back(log_g_i_sP_sT[i][s_prev][s_this]);
           a_choices.push_back(a_this);
         }
       }
     }
-    // print("weights");
-    // print(weights);
-    // print(a_choices);
     auto [a_this_index, d_entropy] = sample_log_weights(weights);
-    // print(d_entropy);
     entropy += d_entropy;
-    // print(entropy);
     int a_this = a_choices[a_this_index];
-    // print(a_this);
     as.push_back(a_this);
     s_prev += a_this;
   }
-  // print("as:");
-  // print(as);
-  // print("entropy:");
-  // print(entropy);
 
   // Write the sampled row to the table and update the degrees
   int i = n - n_left; // Number of rows already sampled

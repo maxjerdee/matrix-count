@@ -5,14 +5,11 @@
 
 #include <random>
 
-inline int max_iterations =
-    1000000; // maximum number of iterations performed (-T flag)
-inline int max_time = 60 * 60; // in seconds (-t flag)
-
 // Global information about the problem
 inline int n;
 inline int m;
 inline double alpha;
+inline int max_row_sum;
 
 // Constants
 inline double ALPHA_EPSILON =

@@ -233,9 +233,12 @@ def log_symmetric_matrices_hardcoded(
         return float("-inf")
 
     n = len(row_sums)  # Matrix size
-
     if binary_matrix:
-        pass
+        # Check if the provided margin satisfies the Erdos-Gallai condition
+        if not _util.erdos_gallai_check(row_sums):
+            if verbose:
+                logger.info("No matrices satisfy the Erdos-Gallai condition")
+            return float("-inf")
     else:
         if diagonal_sum is not None:
             # If the diagonal sum is constrained to be even, the provided diagonal sum must be even

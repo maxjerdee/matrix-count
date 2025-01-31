@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from matrix_count._util import (
+    erdos_gallai_check,
     log_binom,
     log_factorial,
     log_factorial2,
@@ -54,3 +55,11 @@ def test_log_weight():
     alpha = 5
     result = 17.0292069
     assert log_weight(A, alpha) == pytest.approx(result)
+
+
+def test_erdos_gallai_check():
+    ks = np.array([4, 2, 2, 1, 1])
+    assert erdos_gallai_check(ks)
+
+    ks = np.array([4, 3, 1, 1, 1])
+    assert not erdos_gallai_check(ks)

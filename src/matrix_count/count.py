@@ -94,6 +94,7 @@ def count_log_symmetric_matrices(
     # Check for hardcoded cases
     hardcoded_result = log_symmetric_matrices_hardcoded(
         row_sums,
+        binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
         block_sums=block_sums,
@@ -120,6 +121,7 @@ def count_log_symmetric_matrices(
         # pylint seems to not see the binding on the following line
         sample, entropy = sample_symmetric_matrix(  # pylint: disable=unpacking-non-sequence
             row_sums,
+            binary_matrix=binary_matrix,
             diagonal_sum=diagonal_sum,
             index_partition=index_partition,
             block_sums=block_sums,
@@ -127,9 +129,11 @@ def count_log_symmetric_matrices(
             seed=sample_seed,
             verbose=verbose,
         )
-        entropy = entropy + log_weight(
+
+        entropy += log_weight(
             sample, alpha
         )  # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
+
         entropies.append(entropy)
         log_count_est = log_sum_exp(entropies) - np.log(len(entropies))
 

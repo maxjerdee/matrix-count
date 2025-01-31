@@ -4,12 +4,14 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from . import _input_output
+from .sample_binary_core import sample_symmetric_binary_matrix_core
 from .sample_core import sample_symmetric_matrix_core
 
 
 def sample_symmetric_matrix(
     row_sums: ArrayLike,
     *,
+    binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
@@ -25,6 +27,8 @@ def sample_symmetric_matrix(
     ----------
     row_sums : ArrayLike
         List of row sums.
+    binary_matrix : bool, optional
+        Whether the matrix is binary (0 or 1) instead of non-negative integer valued, defaults to False.
     diagonal_sum : int, optional
         Sum of the diagonal elements of the matrix.
     index_partition : list of int or None, optional
@@ -53,6 +57,7 @@ def sample_symmetric_matrix(
     # Check input validity
     _input_output.log_symmetric_matrices_check_arguments(
         row_sums,
+        binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
         index_partition=index_partition,
         block_sums=block_sums,
@@ -72,4 +77,6 @@ def sample_symmetric_matrix(
     # Seeding the sampler
     seed = int(np.random.default_rng().integers(2**30)) if seed is None else int(seed)
 
+    if binary_matrix:
+        return sample_symmetric_binary_matrix_core(row_sums, seed)
     return sample_symmetric_matrix_core(row_sums, diagonal_sum, alpha, seed)

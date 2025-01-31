@@ -80,3 +80,27 @@ def test_count_log_symmetric_matrices_diagonal_sum():
     assert log_count_est == pytest.approx(
         log_count_true, abs=sigma_error * log_count_est_err
     )  # Chance that this just randomly fails
+
+
+def test_count_log_symmetric_binary_matrices():
+    sigma_error = 5  # Number of standard deviations to check within
+
+    # 6, 4, 3, 3, 2, 2, 1, 1
+    test_margin = [6, 4, 3, 3, 2, 2, 1, 1]
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(
+        test_margin, binary_matrix=True
+    )
+    log_count_true = np.log(47)
+    assert log_count_est == pytest.approx(
+        log_count_true, abs=sigma_error * log_count_est_err
+    )  # Chance that this just randomly fails
+
+    # 4, 3, 3, 2, 2, 1, 1, 0
+    test_margin = [4, 3, 3, 2, 2, 1, 1, 0]
+    (log_count_est, log_count_est_err) = count_log_symmetric_matrices(
+        test_margin, binary_matrix=True
+    )
+    log_count_true = np.log(65)
+    assert log_count_est == pytest.approx(
+        log_count_true, abs=sigma_error * log_count_est_err
+    )  # Chance that this just randomly fails

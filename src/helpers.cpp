@@ -37,6 +37,9 @@ double log_sum_exp(double a, double b) {
 
 // Overflow protected version of log(\sum exp(x_i))
 double log_sum_exp(std::vector<double> xs) {
+  if (xs.size() == 0) {
+    return -std::numeric_limits<double>::infinity();
+  }
   double xs_max = *std::max_element(xs.begin(), xs.end());
   double result = 0;
   for (double x : xs) {
@@ -69,6 +72,59 @@ std::pair<int, double> sample_log_weights(std::vector<double> log_weights) {
   // If no match found, return the last element as a fallback (due to rounding
   // issues)
   return std::make_pair(weights.size() - 1, -std::log(weights.back()));
+}
+
+// Sample from a bernoulli distribution with given probability
+std::pair<int, double> sample_bernoulli(double p) {
+  double r = dis(rng);
+  if (r < p) {
+    return std::make_pair(1, -std::log(p));
+  } else {
+    return std::make_pair(0, -std::log(1 - p));
+  }
+}
+
+// Return the indices perm which label the row sums from largest to smallest
+template <typename T> std::vector<int> argsort(const std::vector<T> &array) {
+  std::vector<int> indices(array.size());
+  std::iota(indices.begin(), indices.end(), 0);
+  std::sort(indices.begin(), indices.end(),
+            [&array](int left, int right) -> bool {
+              // sort indices according to corresponding array element
+              return array[left] > array[right];
+            });
+
+  return indices;
+}
+
+// Explicit instantiation of template function for int type
+template std::vector<int> argsort<int>(const std::vector<int> &array);
+
+// Erdos-Gallai condition for a degree sequence (whether a simple graph with
+// this degree sequence exists)
+bool erdos_gallai_condition(const std::vector<int> &ks) {
+  int n = ks.size();
+  int sum_k = 0;
+  for (int i = 0; i < n; i++) {
+    sum_k += ks[i];
+  }
+  if (sum_k % 2 != 0) {
+    return false;
+  }
+  for (int l = 1; l <= n; l++) {
+    int sum_l = 0;
+    for (int i = 0; i < l; i++) {
+      sum_l += ks[i];
+    }
+    int sum_min = 0;
+    for (int i = l; i < n; i++) {
+      sum_min += std::min(ks[i], l);
+    }
+    if (sum_l > l * (l - 1) + sum_min) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // Printing functions (useful for debugging)

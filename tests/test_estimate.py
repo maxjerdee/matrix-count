@@ -93,6 +93,11 @@ def test_estimate_log_symmetric_matrices_hardcoded():
         [2, 2, 2], binary_matrix=True
     ) == pytest.approx(np.log(1))
 
+    # Check binary_matrix cases that violate the Erdos-Gallai conditions
+    assert (
+        estimate_log_symmetric_matrices([4, 3, 1, 1, 1], binary_matrix=True) == -np.inf
+    )
+
 
 def test_alpha_2():
     # Test the second order moment matching estimates (comparing to Mathematica examples)
@@ -156,3 +161,7 @@ def test_estimate_log_symmetric_matrices():
     assert estimate_log_symmetric_matrices(
         [1, 1, 1, 1, 2], estimate_order=2, binary_matrix=True
     ) == pytest.approx(1.01697, 0.001)
+
+    assert estimate_log_symmetric_matrices(
+        [1, 1, 1, 1, 2], estimate_order=2, alpha=5, binary_matrix=True
+    ) == pytest.approx(5.84528, 0.001)
