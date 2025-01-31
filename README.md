@@ -23,24 +23,26 @@
 
 <!-- prettier-ignore-end -->
 
-### Estimating nonnegative integer matrix counting problems
+### Estimating integer matrix counting problems
 
 ##### Maximilian Jerdee
 
 We provide analytic estimates and sampling-based algorithms for a variety of
-counting problems defined over non-negative integer matrices.
+counting problems defined over integer matrices.
 
 For example, we may count the number of non-negative symmetric integer matrices
 with even diagonal entries and a given row sum. This is the number of
 (multi-)graphs with a given degree sequence. We can also estimate the number of
 such matrices under combinations of the further conditions:
 
-- Fixed total sum of diagonal entries.
-- Fixed sum of entries in blocks of matrix. (Not yet implemented)
+- Binary matrices (only simple graphs).
+- Fixed total sum of diagonal entries (number of self edges).
+- Fixed sum of entries in blocks of matrix. (number of edges between prescribed
+  groups) [Not yet implemented]
 
 We also include methods for estimating the number of non-negative integer
 matrices with a given row sum and column sum as described in Jerdee, Kirkley,
-Newman (2022) https://arxiv.org/abs/2209.14869. (Not yet implemented)
+Newman (2022) https://arxiv.org/abs/2209.14869. [Not yet implemented]
 
 These problems can also be generalized as sums over matrices $A$ weighted by a
 Dirichlet-multinomial factor on their entries
@@ -71,7 +73,7 @@ Note that this is not `import matrix-count`.
 
 The package can then be used to evaluate rapid analytic estimates of these
 counting problems, to sample from the space of such matrices, and to converge to
-the exact count of matrices.
+the exact number of these matrices.
 
 ```python
 # Margin of a 8x8 symmetric non-negative integer matrix with even diagonal entries
