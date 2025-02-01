@@ -99,4 +99,4 @@ for _t in range(num_samples):
 ```
 
 Further usage examples can be found in the `examples` directory of the
-repository and the [package documentation]([rtd-link]).
+repository and the [package documentation][rtd-link].
