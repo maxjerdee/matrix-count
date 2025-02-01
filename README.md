@@ -41,8 +41,9 @@ such matrices under combinations of the further conditions:
   groups) [Not yet implemented]
 
 We also include methods for estimating the number of non-negative integer
-matrices with a given row sum and column sum as described in Jerdee, Kirkley,
-Newman (2022) https://arxiv.org/abs/2209.14869. [Not yet implemented]
+matrices with a given row sum and column sum as described in
+[Jerdee, Kirkley, Newman (2022)](https://arxiv.org/abs/2209.14869). [Not
+yet implemented]
 
 These problems can also be generalized as sums over matrices $A$ weighted by a
 Dirichlet-multinomial factor on their entries
@@ -98,4 +99,4 @@ for _t in range(num_samples):
 ```
 
 Further usage examples can be found in the `examples` directory of the
-repository.
+repository and the [package documentation]([rtd-link]).
