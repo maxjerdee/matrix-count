@@ -154,7 +154,7 @@ isort.required-imports = ["from __future__ import annotations"]
 [tool.pylint]
 py-version = "3.8"
 ignore-paths = [".*/_version.py"]
-extension-pkg-allow-list = ["matrix_count._core"]
+extension-pkg-allow-list = ["matrix_count._core, matrix_count._sample_core, matrix_count._sample_binary_core"]
 reports.output-format = "colorized"
 similarities.ignore-imports = "yes"
 messages_control.disable = [

@@ -156,7 +156,8 @@ double sample_table_row(std::vector<std::vector<int>> &table,
     }
   }
 
-  // Pre-compute the log of the elementary symmetric polynomials
+  // Pre-compute the log of the elementary symmetric polynomials, the sum of all
+  // possible products of r distinct elements of ks[j:n]
   std::vector<std::vector<double>> log_elem_sym_polys;
   for (int r = 0; r < ks[0] + 1; r++) {
     std::vector<double> log_elem_sym_polys_r;
@@ -170,7 +171,8 @@ double sample_table_row(std::vector<std::vector<int>> &table,
     for (int r = 1; r < ks[0] + 1;
          r++) { // Can skip r = 1, since e_0 = 1 (log = 0)
       // e_r = \sum_{rr = 1}^r (-1)^{rr - 1} e_{r - rr} p_{rr}
-      if (r > ks.size() - j) { // nan
+      if (r > ks.size() - j) { // nan, there are no subsets of size r in the
+                               // remaining degrees
         log_elem_sym_polys[r][j] = std::numeric_limits<double>::quiet_NaN();
       } else {
         // Challenge here is that some of the terms can be negative, although we

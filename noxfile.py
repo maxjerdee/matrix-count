@@ -69,6 +69,12 @@ def docs(session: nox.Session) -> None:
         *posargs,
     )
 
+    # Debugging the python, print the value of the environment variable $PYTHONPATH
+    session.run("echo", "$PYTHONPATH")
+
+    # Check the matrix_count import
+    session.run("python", "-c", "import matrix_count")
+
     if serve:
         session.run("sphinx-autobuild", "--open-browser", *shared_args)
     else:
