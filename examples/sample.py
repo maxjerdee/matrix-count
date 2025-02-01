@@ -10,7 +10,7 @@ import matrix_count
 from matrix_count import _util
 
 test_margin = [3, 3, 3, 3, 2, 2]
-true_count = np.exp(7.51098)
+true_count = np.exp(7.51098) # Found with brute force
 
 num_samples = 10000
 

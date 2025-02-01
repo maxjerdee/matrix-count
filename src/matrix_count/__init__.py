@@ -20,6 +20,7 @@ __all__ = [
     "log_factorial",
     "log_factorial2",
     "log_sum_exp",
+    "erdos_gallai_check",
     "count_log_symmetric_matrices",
     "estimate_log_symmetric_matrices",
     "sample_symmetric_matrix",
