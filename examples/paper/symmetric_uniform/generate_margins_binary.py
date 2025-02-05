@@ -24,7 +24,7 @@ def sample_margin(n, m):
 
 # Values of m and n to test
 n_values = [8, 16, 32, 64, 128, 256, 512, 1024, 2048] # Size of the matrix
-m_values = [50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600] # Number of edges
+m_values = [25, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800] # Number of edges
 
 # Number of samples to generate for each value of m and n
 num_samples = 10

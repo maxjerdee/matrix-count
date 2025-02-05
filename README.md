@@ -62,6 +62,14 @@ model.
 pip install matrix-count
 ```
 
+or be built locally by cloning this repository and running
+
+```bash
+pip install .
+```
+
+in the base directory.
+
 ## Typical usage
 
 Once installed, the package can be imported as
