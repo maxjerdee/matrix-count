@@ -48,11 +48,6 @@ def test_estimate_log_symmetric_matrices_invalid_arguments():
     with pytest.raises(AssertionError):
         estimate_log_symmetric_matrices([1, 2, 3], alpha=-0.5)
 
-    # :param estimate_order: Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
-    # :type estimate_order: int, optional
-    with pytest.raises(AssertionError):
-        estimate_log_symmetric_matrices([1, 2, 3], estimate_order=4)
-
     # Case: binary_matrix margin is too large
     with pytest.raises(AssertionError):
         estimate_log_symmetric_matrices([1, 2, 3], binary_matrix=True)
@@ -137,31 +132,31 @@ def test_alpha_3():
 def test_estimate_log_symmetric_matrices():
     # Test the estimate_log_symmetric_matrices function
     assert estimate_log_symmetric_matrices(
-        [20, 11, 3], alpha=1, estimate_order=2
+        [20, 11, 3], alpha=1, force_second_order=True
     ) == pytest.approx(3.65746, 0.001)
     assert estimate_log_symmetric_matrices(
-        [20, 11, 3], alpha=5, estimate_order=2
+        [20, 11, 3], alpha=5, force_second_order=True
     ) == pytest.approx(20.3397, 0.001)
 
-    assert estimate_log_symmetric_matrices(
-        [20, 11, 3], alpha=1, estimate_order=3
-    ) == pytest.approx(3.60119, 0.001)
-    assert estimate_log_symmetric_matrices(
-        [20, 11, 3], alpha=5, estimate_order=3
-    ) == pytest.approx(20.3536, 0.001)
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=1) == pytest.approx(
+        3.60119, 0.001
+    )
+    assert estimate_log_symmetric_matrices([20, 11, 3], alpha=5) == pytest.approx(
+        20.3536, 0.001
+    )
 
     assert estimate_log_symmetric_matrices(
-        [20, 11, 3], diagonal_sum=20, alpha=1, estimate_order=2
+        [20, 11, 3], diagonal_sum=20, alpha=1
     ) == pytest.approx(1.29499, 0.001)
     assert estimate_log_symmetric_matrices(
-        [20, 11, 3], diagonal_sum=20, alpha=5, estimate_order=2
+        [20, 11, 3], diagonal_sum=20, alpha=5
     ) == pytest.approx(18.5925, 0.001)
 
     # Binary matrices
     assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 2], estimate_order=2, binary_matrix=True
+        [1, 1, 1, 1, 2], binary_matrix=True
     ) == pytest.approx(1.01697, 0.001)
 
     assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 2], estimate_order=2, alpha=5, binary_matrix=True
+        [1, 1, 1, 1, 2], alpha=5, binary_matrix=True
     ) == pytest.approx(5.84528, 0.001)

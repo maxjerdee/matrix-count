@@ -21,7 +21,7 @@ def log_symmetric_matrices_check_arguments(
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
     alpha: float = 1.0,
-    estimate_order: int = 3,
+    force_second_order: bool = False,
     verbose: bool = False,
 ) -> None:
     """
@@ -46,8 +46,8 @@ def log_symmetric_matrices_check_arguments(
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
-    estimate_order : int, optional
-        Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
+    force_second_order : bool, optional
+        Whether to force the use of the second order estimate. Defaults to False.
     verbose : bool, optional
         Whether to print details of calculation. Defaults to False.
     """
@@ -105,7 +105,7 @@ def log_symmetric_matrices_check_arguments(
     assert isinstance(alpha, (int, float)), "alpha must be a float"
     assert alpha >= 0, "alpha must be greater than or equal to 0"
 
-    assert estimate_order in {2, 3}, "estimate_order must be either 2 or 3"
+    assert isinstance(force_second_order, bool), "force_second_order must be a boolean"
 
     assert isinstance(verbose, bool), "verbose must be a boolean"
 

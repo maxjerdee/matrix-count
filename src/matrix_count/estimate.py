@@ -257,7 +257,7 @@ def estimate_log_symmetric_matrices(
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
     alpha: float = 1.0,
-    estimate_order: int = 3,
+    force_second_order: bool = False,
     verbose: bool = False,
 ) -> float:
     """
@@ -283,8 +283,8 @@ def estimate_log_symmetric_matrices(
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
-    estimate_order : int, optional
-        Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
+    force_second_order : bool, optional
+        Whether to force the use of the second order estimate. Defaults to False.
     verbose : bool, optional
         Whether to print details of calculation. Defaults to False.
 
@@ -301,7 +301,7 @@ def estimate_log_symmetric_matrices(
         index_partition=index_partition,
         block_sums=block_sums,
         alpha=alpha,
-        estimate_order=estimate_order,
+        force_second_order=force_second_order,
         verbose=verbose,
     )
 
@@ -336,7 +336,9 @@ def estimate_log_symmetric_matrices(
         if (
             diagonal_sum is None
         ):  # Symmetric, non-negative matrices, no diagonal constraint
-            if estimate_order == 2:
+            if (
+                force_second_order
+            ):  # Only case where we might force use of the second order estimate
                 alpha_dm = alpha_symmetric_2(
                     matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
                 )
@@ -351,66 +353,49 @@ def estimate_log_symmetric_matrices(
                     log_p += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
                 result += log_p
                 return result
-            if estimate_order == 3:
-                alpha_plus, alpha_minus = alpha_symmetric_3(
-                    matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
-                )
-                log_1 = _util.log_binom(
-                    matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
-                    alpha * n * (n + 1) / 2 - 1,
-                )
-                log_1 += -_util.log_binom(
-                    matrix_total + n * alpha_plus - 1, n * alpha_plus - 1
-                )
-                for k in row_sums:
-                    log_1 += _util.log_binom(k + alpha_plus - 1, alpha_plus - 1)
-                log_2 = _util.log_binom(
-                    matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
-                    alpha * n * (n + 1) / 2 - 1,
-                )
-                log_2 += -_util.log_binom(
-                    matrix_total + n * alpha_minus - 1, n * alpha_minus - 1
-                )
-                for k in row_sums:
-                    log_2 += _util.log_binom(k + alpha_minus - 1, alpha_minus - 1)
-                return _util.log_sum_exp([log_1, log_2]) - float(np.log(2))
-            raise NotImplementedError
-        # Symmetric, non-negative matrices, diagonal constraint
-        if estimate_order == 3:
-            if verbose:
-                logger.info(
-                    "3rd order estimate of symmetric matrices with fixed diagonal count not yet implemented. Defaulting to 2nd order estimate."
-                )
-            estimate_order = 2
-
-        if estimate_order == 2:
-            alpha_dm = alpha_symmetric_2(
+            alpha_plus, alpha_minus = alpha_symmetric_3(
                 matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
             )
-            result = _util.log_binom(diagonal_sum / 2 + alpha * n - 1, alpha * n - 1)
-            result += _util.log_binom(
-                (matrix_total - diagonal_sum) / 2 + alpha * n * (n - 1) / 2 - 1,
-                alpha * n * (n - 1) / 2 - 1,
+            log_1 = _util.log_binom(
+                matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
+                alpha * n * (n + 1) / 2 - 1,
             )
-            result += -_util.log_binom(
-                matrix_total + n * alpha_dm - 1, n * alpha_dm - 1
-            )
-            for k in row_sums:
-                result += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
-            return result
-    else:  # Symmetric, binary matrices
-        if estimate_order == 2:
-            result = float(
-                _util.log_binom(n * (n - 1) / 2, matrix_total / 2)
-                - matrix_total * np.log(n)
-                + _util.log_factorial(matrix_total)
+            log_1 += -_util.log_binom(
+                matrix_total + n * alpha_plus - 1, n * alpha_plus - 1
             )
             for k in row_sums:
-                result -= _util.log_factorial(k)
-            # Dirichlet-multinomial weight (note that this is a trivial calculation for binary matrices)
-            result += matrix_total / 2 * np.log(alpha)
-            return result
-        if estimate_order == 3:
-            raise NotImplementedError
-
-    raise NotImplementedError  # estimate_order != 2, 3
+                log_1 += _util.log_binom(k + alpha_plus - 1, alpha_plus - 1)
+            log_2 = _util.log_binom(
+                matrix_total / 2 + alpha * n * (n + 1) / 2 - 1,
+                alpha * n * (n + 1) / 2 - 1,
+            )
+            log_2 += -_util.log_binom(
+                matrix_total + n * alpha_minus - 1, n * alpha_minus - 1
+            )
+            for k in row_sums:
+                log_2 += _util.log_binom(k + alpha_minus - 1, alpha_minus - 1)
+            return _util.log_sum_exp([log_1, log_2]) - float(np.log(2))
+        # Symmetric, non-negative matrices, diagonal constraint
+        alpha_dm = alpha_symmetric_2(
+            matrix_total, n, diagonal_sum=diagonal_sum, alpha=alpha
+        )
+        result = _util.log_binom(diagonal_sum / 2 + alpha * n - 1, alpha * n - 1)
+        result += _util.log_binom(
+            (matrix_total - diagonal_sum) / 2 + alpha * n * (n - 1) / 2 - 1,
+            alpha * n * (n - 1) / 2 - 1,
+        )
+        result += -_util.log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
+        for k in row_sums:
+            result += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
+        return result
+    # Symmetric, binary matrices
+    result = float(
+        _util.log_binom(n * (n - 1) / 2, matrix_total / 2)
+        - matrix_total * np.log(n)
+        + _util.log_factorial(matrix_total)
+    )
+    for k in row_sums:
+        result -= _util.log_factorial(k)
+    # Dirichlet-multinomial weight (note that this is a trivial calculation for binary matrices)
+    result += matrix_total / 2 * np.log(alpha)
+    return result

@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import os
 
-filename = "test_margins.csv"
+filename = "test_margins_multigraph.csv"
 
 # Seed the rng for repeatability
 np.random.seed(0)
@@ -16,6 +16,11 @@ np.random.seed(0)
 def sample_dirichlet_multinomial(total, size, alpha):
     p = np.random.dirichlet([alpha] * size)
     return np.random.multinomial(total, p)
+
+# Sample margin (only return non-negative margins)
+def sample_margin(n, m):
+    margin = sample_dirichlet_multinomial(2*m - n, n, 1)
+    return margin + 1
 
 # Values of m and n to test
 n_values = [4, 8, 16, 32, 64, 128, 256, 512] # Size of the matrix
@@ -29,16 +34,16 @@ df_dict = {"n": [], "m": [], "margin": [], "true_log_count": [], "true_log_count
 # Generate the margins
 for n in n_values:
     for m in m_values:
-        margins = []
-        for _ in range(num_samples):
-            margin = sample_dirichlet_multinomial(2*m, n, 1)
-            df_dict["n"].append(n)
-            df_dict["m"].append(m)
-            df_dict["margin"].append(str(margin.tolist()))
-            df_dict["true_log_count"].append(np.nan)
-            df_dict["true_log_count_err"].append(np.nan)
-            df_dict["estimate_2"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=False, estimate_order=2))
-            df_dict["estimate_3"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=False, estimate_order=3))
+        if n < 2*m:
+            for _ in range(num_samples):
+                margin = sample_margin(n, m)
+                df_dict["n"].append(n)
+                df_dict["m"].append(m)
+                df_dict["margin"].append(str(margin.tolist()))
+                df_dict["true_log_count"].append(np.nan)
+                df_dict["true_log_count_err"].append(np.nan)
+                df_dict["estimate_2"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=False, force_second_order=True))
+                df_dict["estimate_3"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=False))
 
 df = pd.DataFrame(df_dict)
 print(df)

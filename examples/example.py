@@ -3,7 +3,8 @@
 import matrix_count
 
 # Margin of a 8x8 symmetric non-negative integer matrix with even diagonal entries
-margin = [10, 9, 8, 7, 6, 5, 4, 3]
+# margin = [10, 9, 8, 7, 6, 5, 4, 3]
+margin = [3, 4, 5, 6, 7, 8, 9, 10]
 
 # Estimate the logarithm of the number of symmetric matrices with given margin sum
 # (number of multigraphs with given degree sequence)

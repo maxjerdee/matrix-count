@@ -2,8 +2,9 @@
 # "Efficient and Exact Sampling of Simple Graphs with
 # Given Arbitrary Degree Sequence"
 
-# I still don't really understand their method, although I will need to, but they provide a probability distribution
-# for the log weights that result. 
+# Apparently the weights that result from our algorithm are much more tightly concentrated
+# owing to our adaptive estimate, so the convergence for evaluating expectations
+# should be much faster (although I believe still not particularly competitive with MCMC)
 
 import matrix_count
 import matplotlib.pyplot as plt

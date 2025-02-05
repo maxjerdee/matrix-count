@@ -15,9 +15,9 @@ true_count = np.exp(7.51098) # Found with brute force
 num_samples = 10000
 
 # Estimate the number of matrices with given margins
-estimate_2 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=2)
+estimate_2 = matrix_count.estimate_log_symmetric_matrices(test_margin, force_second_order=True)
 
-estimate_3 = matrix_count.estimate_log_symmetric_matrices(test_margin, estimate_order=3)
+estimate_3 = matrix_count.estimate_log_symmetric_matrices(test_margin)
 
 logEs = []
 log_count_err_ests = []

@@ -22,7 +22,6 @@ def count_log_symmetric_matrices(
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
     alpha: float = 1.0,
-    estimate_order: int = 3,
     max_samples: int = 1000,
     error_target: float = 0.001,
     seed: int | None = None,
@@ -51,8 +50,6 @@ def count_log_symmetric_matrices(
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
-    estimate_order : int, optional
-        Order of moment matching estimate to use. Options: {2, 3}. Defaults to 3.
     max_samples : int, optional
         Maximum number of samples to take. Defaults to 1000.
     error_target : float, optional
@@ -77,7 +74,6 @@ def count_log_symmetric_matrices(
         index_partition=index_partition,
         block_sums=block_sums,
         alpha=alpha,
-        estimate_order=estimate_order,
         verbose=verbose,
     )
 
