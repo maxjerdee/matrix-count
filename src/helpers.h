@@ -33,6 +33,10 @@ template <typename T> std::vector<int> argsort(const std::vector<T> &array);
 // this degree sequence exists)
 bool erdos_gallai_condition(const std::vector<int> &ks);
 
+// Tools for reading and writing from the unordered_map of log_g_i_sP_sT
+void write_log_g_i_sP_sT(int i, int s_prev, int s_this, double val);
+double get_log_g_i_sP_sT(int i, int s_prev, int s_this);
+
 // Printing functions (useful for debugging)
 void print(std::vector<std::vector<int>> table);
 void print(std::vector<std::vector<double>> table);

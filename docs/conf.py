@@ -11,7 +11,11 @@ sys.path.insert(0, str(Path("../src").resolve()))
 project = "matrix-count"
 copyright = "2025, Max Jerdee"
 author = "Max Jerdee"
-version = release = importlib.metadata.version("matrix_count")
+
+try:
+    version = release = importlib.metadata.version("matrix_count")
+except importlib.metadata.PackageNotFoundError:
+    version = release = "0.1.0"
 
 extensions = [
     "myst_parser",

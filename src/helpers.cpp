@@ -128,6 +128,22 @@ bool erdos_gallai_condition(const std::vector<int> &ks) {
   return true;
 }
 
+// Tools for reading and writing from the unordered_map of log_g_i_sP_sT (note
+// that this hash can run into issues once we overflow)
+void write_log_g_i_sP_sT(int i, int s_prev, int s_this, double val) {
+  log_g_i_sP_sT_map[i * (m + 1) * (m + 1) + s_prev * (m + 1) + s_this] = val;
+}
+
+double get_log_g_i_sP_sT(int i, int s_prev, int s_this) {
+  if (log_g_i_sP_sT_map.find(i * (m + 1) * (m + 1) + s_prev * (m + 1) +
+                             s_this) == log_g_i_sP_sT_map.end()) {
+    return -std::numeric_limits<double>::infinity(); // Everything not written
+                                                     // defaults to 0
+  } else {
+    return log_g_i_sP_sT_map[i * (m + 1) * (m + 1) + s_prev * (m + 1) + s_this];
+  }
+}
+
 // Printing functions (useful for debugging)
 // Print function which calls print on all arguments
 // template <typename T, typename... Args>

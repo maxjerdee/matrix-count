@@ -14,6 +14,7 @@ namespace py = pybind11;
 #include <numeric>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #include "estimates.h"
@@ -54,22 +55,6 @@ sample_symmetric_matrix_core(const std::vector<int> &ks, int diagonal_sum,
     m_in = diagonal_sum / 2;
   }
 
-  // Initialize the transition probability tables given the appropriate size,
-  // this array will be reused for various purposes, although we only allocate
-  // the array in memory once log_g_i_sP_sT[i][s_prev][s_this] is log
-  // g_{i+1}(s_prev,s_this)
-  log_g_i_sP_sT = new double **[n]; // Globally defined
-  for (int i = 0; i < n; ++i) {
-    log_g_i_sP_sT[i] = new double *[m + 1];
-    for (int s_prev = 0; s_prev < m + 1; ++s_prev) {
-      log_g_i_sP_sT[i][s_prev] = new double[m + 1];
-      for (int s_this = 0; s_this < m + 1; ++s_this) {
-        log_g_i_sP_sT[i][s_prev][s_this] =
-            -std::numeric_limits<double>::infinity();
-      }
-    }
-  }
-
   // Generate a sample table along with the (absolute) minus log probability
   // that we sampled that table
   auto [table, entropy] = sample_table(ks, m_in);
@@ -97,6 +82,7 @@ sample_table(std::vector<int> ks, int m_in) {
     std::vector<int> row(n, 0);
     table.push_back(row);
   }
+
   double entropy = 0;
 
   if (m_in == -1) { // Unconstrained diagonal sum
@@ -219,8 +205,9 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
         int s_this = m_in;          // s_i
         // g_i(s_{i-1},s_i) = h_i(s_{i-1},s_i) = binom(k_i-2 d_i + alpha_DM - 1,
         // alpha_DM - 1)
-        log_g_i_sP_sT[i][s_prev][s_this] =
-            log_binom(ks[i] - 2 * d_this + alpha_DM - 1, alpha_DM - 1);
+        write_log_g_i_sP_sT(
+            i, s_prev, s_this,
+            log_binom(ks[i] - 2 * d_this + alpha_DM - 1, alpha_DM - 1));
       }
       min_s_this[i] =
           std::max(0, m_in - d_max); // The smallest s_i with nonzero
@@ -250,10 +237,10 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
               int s_next = s_this + d_next; // s_{i+1}
               if (i != n - 2 ||
                   s_next == m_in) { // The last s_{i+1} is always m_in
-                log_gs.push_back(log_g_i_sP_sT[i + 1][s_this][s_next]);
+                log_gs.push_back(get_log_g_i_sP_sT(i + 1, s_this, s_next));
               }
             }
-            log_g_i_sP_sT[i][s_prev][s_this] = log_h + log_sum_exp(log_gs);
+            write_log_g_i_sP_sT(i, s_prev, s_this, log_h + log_sum_exp(log_gs));
             // Update the min_s_this and max_s_this
             if (s_prev < min_s_this[i]) {
               min_s_this[i] = s_prev;
@@ -284,7 +271,7 @@ std::pair<std::vector<int>, double> sample_diagonal_entries(std::vector<int> ks,
           s_this <= max_s_this[i + 1]) { // Make sure that the resulting s_this
                                          // is valid
         if (i != n - 1 || s_this == m_in) {
-          weights.push_back(log_g_i_sP_sT[i][s_prev][s_this]);
+          weights.push_back(get_log_g_i_sP_sT(i, s_prev, s_this));
           d_choices.push_back(d_this);
         }
       }
@@ -318,15 +305,9 @@ double sample_off_diagonal_table(std::vector<std::vector<int>> &table,
     is.push_back(i);
   }
   for (int i = 0; i < n; i++) {
-    // Re-initialize the log table
-    for (int i = 0; i < n; i++) {
-      for (int s_prev = 0; s_prev < m + 1; s_prev++) {
-        for (int s_this = 0; s_this < m + 1; s_this++) {
-          log_g_i_sP_sT[i][s_prev][s_this] =
-              -std::numeric_limits<double>::infinity();
-        }
-      }
-    }
+    // Clear the unordered map
+    log_g_i_sP_sT_map.clear();
+
     entropy += sample_table_row(table, ks_left, is);
   }
   return entropy;
@@ -354,6 +335,7 @@ double sample_table_row(std::vector<std::vector<int>> &table,
   if (n_left == 0) {
     return 0;
   }
+
   // Sample the top row, assuming that all of the diagonal values are 0 (a
   // length n_left - 1 vector that sums to ks[0]) Use dynamic programming to
   // compute the log_g values If the number left is 4 or less, we can set alpha
@@ -386,9 +368,9 @@ double sample_table_row(std::vector<std::vector<int>> &table,
                        // g_n(s_{i-1},s_i), make sure s_prev >= 0
         int s_prev = ks[0] - a_this; // s_{i-1}
         int s_this = ks[0];          // s_i
-        log_g_i_sP_sT[i][s_prev][s_this] =
-            log_binom(ks[i + 1] - a_this + alpha_DM - 1,
-                      alpha_DM - 1); // log h_i(s_{i-1},s_i)
+        write_log_g_i_sP_sT(i, s_prev, s_this,
+                            log_binom(ks[i + 1] - a_this + alpha_DM - 1,
+                                      alpha_DM - 1)); // log h_i(s_{i-1},s_i)
       }
       min_s_this[i] =
           std::max(0, ks[0] - a_max); // The smallest s_i with nonzero
@@ -417,10 +399,10 @@ double sample_table_row(std::vector<std::vector<int>> &table,
               int s_next = s_this + a_next; // s_{i+1}
               if (i != n_left - 1 - 1 - 1 ||
                   s_next == ks[0]) { // The last s_{i+1} is always ks[0]
-                log_gs.push_back(log_g_i_sP_sT[i + 1][s_this][s_next]);
+                log_gs.push_back(get_log_g_i_sP_sT(i + 1, s_this, s_next));
               }
             }
-            log_g_i_sP_sT[i][s_prev][s_this] = log_h + log_sum_exp(log_gs);
+            write_log_g_i_sP_sT(i, s_prev, s_this, log_h + log_sum_exp(log_gs));
             // Update the min_s_this and max_s_this
             if (s_prev < min_s_this[i]) {
               min_s_this[i] = s_prev;
@@ -450,7 +432,7 @@ double sample_table_row(std::vector<std::vector<int>> &table,
           s_this <= max_s_this[i + 1]) { // Make sure that the resulting s_this
                                          // is valid
         if (i != n_left - 1 - 1 || s_this == ks[0]) {
-          weights.push_back(log_g_i_sP_sT[i][s_prev][s_this]);
+          weights.push_back(get_log_g_i_sP_sT(i, s_prev, s_this));
           a_choices.push_back(a_this);
         }
       }

@@ -4,6 +4,7 @@
 #define GLOBALS_H
 
 #include <random>
+#include <unordered_map>
 
 // Global information about the problem
 inline int n;
@@ -15,8 +16,8 @@ inline int max_row_sum;
 inline double ALPHA_EPSILON =
     1e-7; // Small constant to add to the alpha parameter to avoid poles
 
-// Large arrays for storing the values in the dynamic programming algorithm
-inline double ***log_g_i_sP_sT;
+// Hash map for storing the values in the dynamic programming algorithm
+inline std::unordered_map<int, double> log_g_i_sP_sT_map;
 
 inline std::random_device rd;
 inline std::mt19937 rng(rd()); // Initialize Mersenne Twister (global RNG)

@@ -1,6 +1,6 @@
 # Figure generation for the paper
 
-- Figure showing the typical performance of the symmetric estimate.
+- Figure showing the typical performance of the symmetric estimate on a random margin for the multigraph and simple graph cases. 
 
 - Figure with performace of the symmetric estimate on real degree sequences.
 
