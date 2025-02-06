@@ -249,6 +249,28 @@ def alpha_symmetric_3(
     raise NotImplementedError
 
 
+def alpha_symmetric_binary(matrix_total: int, n: int) -> float:
+    """
+    Dirichlet-Multinomial parameter alpha for the second order moment matching estimate
+    of the number of binary symmetric matrices. Note that this will typically be negative, and not a valid Dirichlet-Multinomial parameter
+    If the matrix has total $2m$, this is
+    .. math::
+        \alpha = \frac{-2 m n - n - 1}{2 m + n - 1}
+    Parameters
+    ----------
+    matrix_total : int
+        Matrix total (sum of all entries).
+    n : int
+        Matrix size (n,n).
+    Returns
+    -------
+    float
+        alpha
+    """
+    alpha_epsilon = 1e-10  # To avoid division by zero
+    return (-matrix_total * n + n - 1) / (matrix_total + n - 1 + alpha_epsilon)
+
+
 def estimate_log_symmetric_matrices(
     row_sums: list[int] | ArrayLike,
     *,
@@ -258,6 +280,7 @@ def estimate_log_symmetric_matrices(
     alpha: float = 1.0,
     force_second_order: bool = False,
     binary_matrix: bool = False,
+    binary_multinomial_estimate: bool = False,
     verbose: bool = False,
 ) -> float:
     """
@@ -285,6 +308,8 @@ def estimate_log_symmetric_matrices(
         Whether to force the use of the second order estimate. Defaults to False.
     binary_matrix : bool, optional
         Whether the matrix is binary (0 or 1) instead of non-negative integer valued. Defaults to False.
+    binary_multinomial_estimate : bool, optional
+        Whether to use the Multinomial estimate for binary matrices instead of the pseudo Dirichlet-Multinomial estimate. Defaults to False.
     verbose : bool, optional
         Whether to print details of calculation. Defaults to False.
 
@@ -389,13 +414,23 @@ def estimate_log_symmetric_matrices(
             result += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
         return result
     # Symmetric, binary matrices
-    result = float(
-        _util.log_binom(n * (n - 1) / 2, matrix_total / 2)
-        - matrix_total * np.log(n)
-        + _util.log_factorial(matrix_total)
-    )
+    if binary_multinomial_estimate:  # Use the multinomial estimate for binary matrices (advantage of never being too far off)
+        result = float(
+            _util.log_binom(n * (n - 1) / 2, matrix_total / 2)
+            - matrix_total * np.log(n)
+            + _util.log_factorial(matrix_total)
+        )
+        for k in row_sums:
+            result -= _util.log_factorial(k)
+        # Dirichlet-multinomial weight (note that this is a trivial calculation for binary matrices)
+        result += matrix_total / 2 * np.log(alpha)
+        return result
+    alpha_dm = alpha_symmetric_binary(matrix_total, n)
+    result = _util.log_binom(n * (n - 1) / 2, matrix_total / 2)
+    log_p = -_util.log_binom(matrix_total + n * alpha_dm - 1, n * alpha_dm - 1)
     for k in row_sums:
-        result -= _util.log_factorial(k)
+        log_p += _util.log_binom(k + alpha_dm - 1, alpha_dm - 1)
+    result += log_p
     # Dirichlet-multinomial weight (note that this is a trivial calculation for binary matrices)
     result += matrix_total / 2 * np.log(alpha)
     return result

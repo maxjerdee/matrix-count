@@ -15,7 +15,7 @@ def erdos_gallai_check_parts(ks) -> bool:
     if np.sum(ks) % 2 == 1 or np.any(ks < 0) or np.any(ks > len(ks) - 1):
         return False
     ks = -np.sort(-ks)
-    print(ks)
+    # print(ks)
     for l_val in range(1, len(ks) + 1):
         left: int = np.sum(ks[:l_val])
         right: int = l_val * (l_val - 1)
@@ -23,10 +23,23 @@ def erdos_gallai_check_parts(ks) -> bool:
             right += min(l_val, ks[_])
         if left > right:
             return False
-        print(l_val, left, right)
+        # print(l_val, left, right)
     return True
 
-test_margin = [13,  5, 14,  5,  5, 15,  9,  3,  1,  6,  2,  7,  2,  6,  6,  1]
+    # ks = np.array(ks)
+    # if np.sum(ks) % 2 == 1 or np.any(ks < 0) or np.any(ks > len(ks) - 1):
+    #     return False
+    # ks = -np.sort(-ks)
+    # for l_val in range(1, len(ks) + 1):
+    #     left: int = np.sum(ks[:l_val])
+    #     right: int = l_val * (l_val - 1)
+    #     for _ in range(l_val, len(ks)):
+    #         right += min(l_val, ks[_])
+    #     if left > right:
+    #         return False
+    # return True
+
+test_margin = [2, 16, 14, 30, 9, 24, 11, 25, 12, 4, 12, 8, 11, 11, 24, 1, 8, 10, 13, 16, 20, 9, 13, 12, 8, 19, 22, 7, 19, 1, 6, 3]
 
 estimate, err = matrix_count.count_log_symmetric_matrices(test_margin, binary_matrix=True)
 print(estimate, err)
