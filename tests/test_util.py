@@ -63,3 +63,6 @@ def test_erdos_gallai_check():
 
     ks = np.array([4, 3, 1, 1, 1])
     assert not erdos_gallai_check(ks)
+
+    ks = np.array([13, 5, 14, 5, 5, 15, 9, 3, 1, 6, 2, 7, 2, 6, 6, 1])
+    assert not erdos_gallai_check(ks)

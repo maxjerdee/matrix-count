@@ -105,7 +105,7 @@ def erdos_gallai_check(ks: ArrayLike) -> bool:
         left: int = np.sum(ks[:l_val])
         right: int = l_val * (l_val - 1)
         for _ in range(l_val, len(ks)):
-            right += min(l_val, ks[l_val])
+            right += min(l_val, ks[_])
         if left > right:
             return False
     return True

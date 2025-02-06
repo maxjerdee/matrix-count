@@ -6,7 +6,6 @@ import pytest
 from matrix_count.estimate import (
     alpha_symmetric_2,
     alpha_symmetric_3,
-    alpha_symmetric_binary,
     estimate_log_symmetric_matrices,
 )
 
@@ -130,10 +129,6 @@ def test_alpha_3():
     assert alpha_pm[1] == pytest.approx(alpha_pm_true[1], 0.001)
 
 
-def test_alpha_symmetric_binary():
-    assert alpha_symmetric_binary(40, 10) == pytest.approx(-7.97959, 0.001)
-
-
 def test_estimate_log_symmetric_matrices():
     # Test the estimate_log_symmetric_matrices function
     assert estimate_log_symmetric_matrices(
@@ -158,25 +153,10 @@ def test_estimate_log_symmetric_matrices():
     ) == pytest.approx(18.5925, 0.001)
 
     # Binary matrices
-    # pseudo Dirichlet-Multinomial
     assert estimate_log_symmetric_matrices(
         [1, 1, 1, 1, 2], binary_matrix=True
-    ) == pytest.approx(1.89415, 0.001)
-
-    assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 2], alpha=5, binary_matrix=True
-    ) == pytest.approx(6.72247, 0.001)
-
-    # This is a case where direct abilication of the Dirichlet-Multinomial distribution with a negative alpha results in a negative count
-    assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 1, 1, 6], binary_matrix=True
-    ) == pytest.approx(-3.01943, 0.001)
-
-    # Multinomial estimate
-    assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 2], binary_matrix=True, binary_multinomial_estimate=True
     ) == pytest.approx(1.01697, 0.001)
 
     assert estimate_log_symmetric_matrices(
-        [1, 1, 1, 1, 2], alpha=5, binary_matrix=True, binary_multinomial_estimate=True
+        [1, 1, 1, 1, 2], alpha=5, binary_matrix=True
     ) == pytest.approx(5.84528, 0.001)
