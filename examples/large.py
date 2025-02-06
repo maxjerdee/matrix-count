@@ -12,7 +12,7 @@ print("Estimated log count of symmetric matrices:", estimate)
 
 # Count the number of such matrices
 count, count_err = matrix_count.count_log_symmetric_matrices(
-    margin, verbose=True, alpha=1
+    margin, verbose=True, alpha=1, timeout=10
 )
 print("Log count of symmetric matrices:", count, "+/-", count_err)
 

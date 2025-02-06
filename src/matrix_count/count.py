@@ -1,6 +1,9 @@
 # Use the sample.pyi implementation of SIS in order to obtain counts and error estimates.
 from __future__ import annotations
 
+import logging
+import time
+
 import numpy as np
 import tqdm
 from numpy.typing import ArrayLike
@@ -12,6 +15,10 @@ from matrix_count._input_output import (
 )
 from matrix_count._util import log_sum_exp, log_weight
 from matrix_count.sample import sample_symmetric_matrix
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def count_log_symmetric_matrices(
@@ -25,6 +32,7 @@ def count_log_symmetric_matrices(
     max_samples: int = 1000,
     error_target: float = 0.001,
     seed: int | None = None,
+    timeout: float = 60.0,  # Timeout in seconds
     verbose: bool = False,
 ) -> tuple[float, float]:
     """
@@ -56,6 +64,8 @@ def count_log_symmetric_matrices(
         Target absolute error in the logarithm of the count. Defaults to 0.01.
     seed : int, optional
         Seed for the random number generator. Defaults to None.
+    timeout : float, optional
+        Timeout in seconds. Defaults to 60.0.
     verbose : bool, optional
         Whether to print details of calculation. Defaults to False.
 
@@ -108,8 +118,19 @@ def count_log_symmetric_matrices(
     entropies = []
     log_count_est = 0  # Estimated log count
     log_count_err_est = np.inf  # Estimated error in the log count
-    progress = tqdm.tqdm(range(max_samples))
-    for sample_num in progress:
+    start_time = time.time()  # Start time for timeout
+
+    # Use tqdm progress bar if verbose, otherwise use a simple range
+    progress = tqdm.tqdm(range(max_samples)) if verbose else range(max_samples)
+
+    for sample_num in progress:  # type: ignore[attr-defined]
+        # Check for timeout
+        elapsed_time = time.time() - start_time
+        if elapsed_time > timeout:
+            if verbose:
+                logger.info("Timeout reached.")
+            break
+
         # Seed to use for this sample
         sample_seed = rng.integers(
             0, 2**31 - 1
@@ -145,9 +166,10 @@ def count_log_symmetric_matrices(
             log_count_err_est = np.exp(
                 log_std - 0.5 * np.log(len(entropies)) - log_E_entropy
             )
-            progress.set_postfix_str(
-                f"Log count: {log_E_entropy:.3f} +/- {log_count_err_est:.3f}"
-            )
+            if verbose:
+                progress.set_postfix_str(  # type: ignore[attr-defined]
+                    f"Log count: {log_E_entropy:.3f} +/- {log_count_err_est:.3f}"
+                )
             if (
                 log_count_err_est < error_target and sample_num >= min_num_samples
             ):  # Terminate if the error is below the target and we have taken enough samples
