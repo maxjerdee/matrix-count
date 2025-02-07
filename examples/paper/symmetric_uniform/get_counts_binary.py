@@ -2,6 +2,7 @@
 
 import matrix_count
 from joblib import Parallel, delayed
+from multiprocessing import Process, Manager
 
 import pandas as pd
 import numpy as np
@@ -12,22 +13,25 @@ filename = "test_margins_binary.csv"
 # Read csv
 df = pd.read_csv(filename)
 
-# Function to calculate true log count for a row
-def calculate_true_log_count(i, row):
-    # if np.isnan(row["true_log_count"]) and row["m"] <= 400:
-    if row["m"] <= 400:
-        print(np.array(ast.literal_eval(row["margin"])))
-        true_log_count, true_log_count_err = matrix_count.count_log_symmetric_matrices(np.array(ast.literal_eval(row["margin"])), binary_matrix=True)
+def save_to_file(q):
+    while True:
+        i, true_log_count, true_log_count_err = q.get()
+        if i is None: break
         df.at[i, "true_log_count"] = true_log_count
         df.at[i, "true_log_count_err"] = true_log_count_err
-        print(true_log_count, true_log_count_err)
-
-        # Save the updated dataframe
         df.to_csv(filename, index=False)
-        print(f"{filename} updated.")
 
-# Parallel processing
+# Function to calculate true log count for a row
+def calculate_true_log_count(i, row):
+    if np.isnan(row["true_log_count"]):
+        # 10 minute timeout
+        true_log_count, true_log_count_err = matrix_count.count_log_symmetric_matrices(np.array(ast.literal_eval(row["margin"])), binary_matrix=True, timeout=60*10)
+        q.put((i, true_log_count, true_log_count_err))
 
-
-results = Parallel(n_jobs=1)(delayed(calculate_true_log_count)(i, row) for i, row in df.iterrows())
-
+m = Manager()
+q = m.Queue() # queue to store results to be written to file as they come in
+p = Process(target=save_to_file, args=(q,))
+p.start()
+Parallel(n_jobs=-1)(delayed(calculate_true_log_count)(i, row) for i, row in df.iterrows())
+q.put(None)
+p.join()

@@ -29,7 +29,7 @@ m_values = [25, 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800] # Number of edg
 # Number of samples to generate for each value of m and n
 num_samples = 10
 
-df_dict = {"n": [], "m": [], "margin": [], "true_log_count": [], "true_log_count_err": [], "estimate": []}
+df_dict = {"n": [], "m": [], "margin": [], "true_log_count": [], "true_log_count_err": [], "estimate_mult": [], "estimate_DM": []}
 
 # Generate the margins
 for n in n_values:
@@ -47,7 +47,8 @@ for n in n_values:
                         df_dict["margin"].append(str(margin.tolist()))
                         df_dict["true_log_count"].append(np.nan)
                         df_dict["true_log_count_err"].append(np.nan)
-                        df_dict["estimate"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=True))
+                        df_dict["estimate_mult"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=True, binary_multinomial_estimate=True))
+                        df_dict["estimate_DM"].append(matrix_count.estimate_log_symmetric_matrices(margin, binary_matrix=True))
 
 df = pd.DataFrame(df_dict)
 print(df)
