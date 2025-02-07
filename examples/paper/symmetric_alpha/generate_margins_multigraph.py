@@ -27,7 +27,7 @@ n = 64 # Size of the matrix
 m = 200 # Number of edges
 
 # Number of samples to generate for each value of m and n
-num_samples = 10
+num_samples = 50
 
 df_dict = {"n": [], "m": [], "alpha": [], "margin": [], "true_log_count": [], "true_log_count_err": [], "estimate_2": [], "estimate_3": []}
 
