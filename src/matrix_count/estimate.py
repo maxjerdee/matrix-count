@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def alpha_symmetric_2(
     matrix_total: int, n: int, diagonal_sum: int | None = None, alpha: float = 1.0
 ) -> float:
-    r"""
+    """
     Dirichlet-Multinomial parameter alpha for the second order moment matching estimate
     of the number of symmetric matrices with given conditions.
 
@@ -24,7 +24,7 @@ def alpha_symmetric_2(
     matrix_total : int
         Matrix total (sum of all entries).
     n : int
-        Matrix size (n,n).
+        Matrix size (n, n).
     diagonal_sum : int or None, optional
         Sum of the diagonal elements of the matrix.
     alpha : float, optional
@@ -121,7 +121,7 @@ def alpha_symmetric_3(
     matrix_total : int
         Matrix total (sum of all entries).
     n : int
-        Matrix size (n,n).
+        Matrix size (n, n).
     diagonal_sum : int or None, optional
         Sum of the diagonal elements of the matrix.
     alpha : float, optional
@@ -252,16 +252,15 @@ def alpha_symmetric_3(
 def alpha_symmetric_binary(matrix_total: int, n: int) -> float:
     """
     Dirichlet-Multinomial parameter alpha for the second order moment matching estimate
-    of the number of binary symmetric matrices. Note that this will typically be negative, and not a valid Dirichlet-Multinomial parameter
-    If the matrix has total $2m$, this is
-    .. math::
-        \alpha = \frac{-2 m n - n - 1}{2 m + n - 1}
+    of the number of binary symmetric matrices. Note that this will typically be negative, and not a valid Dirichlet-Multinomial parameter.
+
     Parameters
     ----------
     matrix_total : int
         Matrix total (sum of all entries).
     n : int
-        Matrix size (n,n).
+        Matrix size (n, n).
+
     Returns
     -------
     float
