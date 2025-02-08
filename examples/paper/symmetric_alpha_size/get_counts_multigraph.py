@@ -15,11 +15,14 @@ df = pd.read_csv(filename)
 
 def save_to_file(q):
     while True:
-        i, true_log_count, true_log_count_err = q.get()
-        if i is None: break
-        df.at[i, "true_log_count"] = true_log_count
-        df.at[i, "true_log_count_err"] = true_log_count_err
-        df.to_csv(filename, index=False)
+        try:
+            i, true_log_count, true_log_count_err = q.get()
+            if i is None: break
+            df.at[i, "true_log_count"] = true_log_count
+            df.at[i, "true_log_count_err"] = true_log_count_err
+            df.to_csv(filename, index=False)
+        except:
+            continue
 
 # Function to calculate true log count for a row
 def calculate_true_log_count(i, row):
