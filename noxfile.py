@@ -63,6 +63,7 @@ def docs(session: nox.Session) -> None:
     shared_args = (
         "-n",  # nitpicky mode
         "-T",  # full tracebacks
+        "-v",
         f"-b={args.builder}",
         "docs",
         args.output or f"docs/_build/{args.builder}",

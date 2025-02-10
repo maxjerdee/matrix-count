@@ -17,6 +17,7 @@ try:
 except importlib.metadata.PackageNotFoundError:
     version = release = "0.1.0"
 
+
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
@@ -78,6 +79,23 @@ latex_elements = {
     \usepackage{amsfonts}
     \usepackage{amssymb}
     """,
+}
+
+
+# Autodoc default options
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
+
+# Ensure full tracebacks are shown, print the exception and exit with a non-zero status code
+
+# Autodoc default options
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
 }
 
 

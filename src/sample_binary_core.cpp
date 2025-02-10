@@ -236,6 +236,10 @@ double sample_table_row(std::vector<std::vector<int>> &table,
           ks_zero.push_back(ks[j] - 0);
         }
       }
+      // Sort ks_zero to run from larest to smallest (before making the
+      // erdos-gallai check)
+      std::sort(ks_zero.begin(), ks_zero.end(), std::greater<int>());
+
       if (erdos_gallai_condition(ks_zero)) {
         // If a zero is possible, we use our estimate to compute the probability
         // of a 1
