@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -160,9 +159,6 @@ Thumbs.db
 # Common editor files
 *~
 *.swp
-=======
-SIS/data/
-SIS/outputs/
 
 # Prerequisites
 *.d
@@ -201,4 +197,3 @@ SIS/outputs/
 __pycache__/
 *.py[cod]
 *$py.class
->>>>>>> bf2ebe7b9ef353eb7a272572d58f867e4a1047a6
