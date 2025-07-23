@@ -1,4 +1,5 @@
-# Examples of matrix_count usage on a large example, progress bar shows current progress and estimated value of the log count.
+# Examples of matrix_count usage on a large example, 
+# progress bar shows current progress and estimated value of the log count.
 
 import matrix_count
 

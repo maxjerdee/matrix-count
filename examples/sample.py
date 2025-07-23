@@ -1,4 +1,5 @@
-# Demonstration of how samples are combined to estimate the count of symmetric matrices with given margins.
+# Demonstration of how samples are combined to estimate the count 
+# of symmetric matrices with given margins.
 # Produces a figure showing convergence to the true count. 
 
 from __future__ import annotations

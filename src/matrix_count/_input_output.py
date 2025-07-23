@@ -143,6 +143,8 @@ def simplify_input(
     block_sums : ArrayLike, optional
         A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
+    verbose : bool, optional
+        Whether to print details of calculation. Defaults to False.
 
     Returns
     -------

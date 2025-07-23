@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -159,3 +160,45 @@ Thumbs.db
 # Common editor files
 *~
 *.swp
+=======
+SIS/data/
+SIS/outputs/
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Python, Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+>>>>>>> bf2ebe7b9ef353eb7a272572d58f867e4a1047a6

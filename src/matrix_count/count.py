@@ -121,9 +121,16 @@ def count_log_symmetric_matrices(
     start_time = time.time()  # Start time for timeout
 
     # Use tqdm progress bar if verbose, otherwise use a simple range
-    progress = tqdm.tqdm(range(max_samples)) if verbose else range(max_samples)
+    if verbose:
+        progress_bar = tqdm.tqdm(range(max_samples))
+        use_progress_bar = True
+        progress_iter = progress_bar
+    else:
+        progress_bar = None
+        use_progress_bar = False
+        progress_iter = range(max_samples)  # type: ignore[assignment]
 
-    for sample_num in progress:  # type: ignore[attr-defined]
+    for sample_num in progress_iter:
         # Check for timeout
         elapsed_time = time.time() - start_time
         if elapsed_time > timeout:
@@ -132,8 +139,8 @@ def count_log_symmetric_matrices(
             break
 
         # Seed to use for this sample
-        sample_seed = rng.integers(
-            0, 2**31 - 1
+        sample_seed = int(
+            rng.integers(0, 2**31 - 1)
         )  # If the integer is too large it screws up the pybind wrapper
         # pylint seems to not see the binding on the following line
         sample, entropy = sample_symmetric_matrix(  # pylint: disable=unpacking-non-sequence
@@ -166,8 +173,8 @@ def count_log_symmetric_matrices(
             log_count_err_est = np.exp(
                 log_std - 0.5 * np.log(len(entropies)) - log_E_entropy
             )
-            if verbose:
-                progress.set_postfix_str(  # type: ignore[attr-defined]
+            if use_progress_bar and progress_bar is not None:
+                progress_bar.set_postfix_str(
                     f"Log count: {log_E_entropy:.3f} +/- {log_count_err_est:.3f}"
                 )
             if (
