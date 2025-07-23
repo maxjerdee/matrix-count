@@ -1,8 +1,6 @@
 # matrix-count
 
-[![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
-
 [![PyPI version][pypi-version]][pypi-link]
 [![PyPI platforms][pypi-platforms]][pypi-link]
 [![codecov][codecov-badge]][codecov-link]
@@ -18,8 +16,8 @@
 [pypi-link]:                https://pypi.org/project/matrix-count/
 [pypi-platforms]:           https://img.shields.io/pypi/pyversions/matrix-count
 [pypi-version]:             https://img.shields.io/pypi/v/matrix-count
-[rtd-badge]:                https://readthedocs.org/projects/matrix-count/badge/?version=latest
-[rtd-link]:                 https://matrix-count.readthedocs.io/en/latest/?badge=latest
+[rtd-badge]:                https://readthedocs.org/projects/matrix-count/badge/?version=stable
+[rtd-link]:                 https://matrix-count.readthedocs.io/en/stable
 
 <!-- prettier-ignore-end -->
 
