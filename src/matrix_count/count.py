@@ -9,11 +9,11 @@ import tqdm
 from numpy.typing import ArrayLike
 
 from matrix_count._input_output import (
-    log_symmetric_matrices_check_arguments,
-    log_symmetric_matrices_hardcoded,
-    simplify_input,
+    _log_symmetric_matrices_check_arguments,
+    _log_symmetric_matrices_hardcoded,
+    _symmetric_simplify_input,
 )
-from matrix_count._util import log_sum_exp, log_weight
+from matrix_count._util import _log_sum_exp, _log_weight
 from matrix_count.sample import sample_symmetric_matrix
 
 # Configure logging
@@ -26,8 +26,6 @@ def count_log_symmetric_matrices(
     *,
     binary_matrix: bool = False,
     diagonal_sum: int | None = None,
-    index_partition: list[int] | None = None,
-    block_sums: ArrayLike | None = None,
     alpha: float = 1.0,
     max_samples: int = 1000,
     error_target: float = 0.001,
@@ -38,6 +36,7 @@ def count_log_symmetric_matrices(
     """
     Dirichlet-multinomial moment-matching estimate of the logarithm
     of the number of symmetric non-negative matrices with given row sums.
+    Not available for block_sums or index_partition arguments.
 
     Parameters
     ----------
@@ -48,13 +47,6 @@ def count_log_symmetric_matrices(
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
-    index_partition : list of int or None, optional
-        A list of length n of integers ranging from 1 to q.
-        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
-        A value of None results in no block sum constraint, defaults to None.
-    block_sums : ArrayLike, optional
-        A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
-        A value of None results in no block sum constraint, defaults to None.
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
@@ -77,33 +69,27 @@ def count_log_symmetric_matrices(
     """
 
     # Check input validity
-    log_symmetric_matrices_check_arguments(
+    _log_symmetric_matrices_check_arguments(
         row_sums,
         binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
-        index_partition=index_partition,
-        block_sums=block_sums,
         alpha=alpha,
         verbose=verbose,
     )
 
     # Remove empty margins
-    row_sums, diagonal_sum, index_partition, block_sums = simplify_input(
+    row_sums, diagonal_sum, _ = _symmetric_simplify_input(
         row_sums,
         binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
-        index_partition=index_partition,
-        block_sums=block_sums,
         verbose=verbose,
     )
 
     # Check for hardcoded cases
-    hardcoded_result = log_symmetric_matrices_hardcoded(
+    hardcoded_result = _log_symmetric_matrices_hardcoded(
         row_sums,
         binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
-        index_partition=index_partition,
-        block_sums=block_sums,
         alpha=alpha,
         verbose=verbose,
     )
@@ -147,22 +133,20 @@ def count_log_symmetric_matrices(
             row_sums,
             binary_matrix=binary_matrix,
             diagonal_sum=diagonal_sum,
-            index_partition=index_partition,
-            block_sums=block_sums,
             alpha=alpha,
             seed=sample_seed,
             verbose=verbose,
         )
 
-        entropy += log_weight(
+        entropy += _log_weight(
             sample, alpha
         )  # Really should be averaging w(A)/Q(A), entropy = -log Q(A)
 
         entropies.append(entropy)
-        log_count_est = log_sum_exp(entropies) - np.log(len(entropies))
+        log_count_est = _log_sum_exp(entropies) - np.log(len(entropies))
 
-        log_E_entropy_2 = log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
-        log_E_entropy = log_sum_exp(entropies) - np.log(len(entropies))
+        log_E_entropy_2 = _log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))
+        log_E_entropy = _log_sum_exp(entropies) - np.log(len(entropies))
         if (
             log_E_entropy_2 - 2 * log_E_entropy > 0.0001
         ):  # Estimate the error by the standard deviation of the counts
@@ -181,5 +165,66 @@ def count_log_symmetric_matrices(
                 log_count_err_est < error_target and sample_num >= min_num_samples
             ):  # Terminate if the error is below the target and we have taken enough samples
                 break
+        else: # If all the sampled values are the same, report zero error (and a warning)
+            log_count_err_est = 0.0
+            if verbose:
+                logger.warning(
+                    "All sampled entropies are the same, reporting zero error."
+                )
+
 
     return (log_count_est, log_count_err_est)
+
+
+def log_estimate(
+    row_sums: list[int] | ArrayLike,
+    column_sums: list[int] | None = None,
+    *,
+    binary_matrix: bool = False,
+    diagonal_sum: int | None = None,
+    index_partition: list[int] | None = None,
+    block_sums: ArrayLike | None = None,
+    block_diagonal_sums: ArrayLike | None = None,
+    alpha: float = 1.0,
+    force_second_order: bool = False,
+    allow_pseudo: bool = True,
+    verbose: bool = False,
+) -> float:
+    # Placeholder implementation
+    return 0.
+
+def log_count(
+    row_sums: list[int],
+    column_sums: list[int] | None = None,
+    *,
+    binary_matrix: bool = False,
+    diagonal_sum: int | None = None,
+    alpha: float = 1.0,
+    max_samples: int = 1000,
+    error_target: float = 0.001,
+    seed: int | None = None,
+    timeout: float = 60.0,  # Timeout in seconds
+    verbose: bool = False,
+) -> tuple[float, float]:
+    
+    
+    return (1, 0)  # Placeholder for the result and error, to be implemented later
+
+
+def sample(
+    row_sums: list[int],
+    column_sums: list[int] | None = None,
+    *,
+    binary_matrix: bool = False,
+    diagonal_sum: int | None = None,
+    alpha: float = 1.0,
+    num_samples: int = 1,
+    importance_sample: bool = False,
+    seed: int | None = None,
+    verbose: bool = False,
+) -> tuple[ArrayLike, float | tuple[float, float]]:
+    """
+    Sample a symmetric matrix with given row sums and diagonal sum.
+    Not available for block_sums or index_partition arguments.
+    """
+    return [0]

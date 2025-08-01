@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import numpy as np
 
-import matrix_count
+import matrix_count as mc
 
 samples = []
 entropies = []
@@ -16,7 +16,7 @@ total_prop = 0
 num_samples = 10000
 
 for _t in range(num_samples):
-    sample, entropy = matrix_count.sample_symmetric_matrix([20, 11, 3])
+    sample, entropy = mc.sample_symmetric_matrix([20, 11, 3])
     samples.append(sample)
     entropies.append(entropy)
     log_correlators.append(np.log(sample[0, 1] * sample[1, 2]))
@@ -26,8 +26,8 @@ log_correlators = np.array(log_correlators)
 
 # Expectations can be calculated as E[f(A)] = 1/(\sum_{A_i} 1/Q(A_i))\sum_{A_i} f(A_i)/Q(A_i)
 # where Q(A_i) = exp(-entropy(A_i))
-log_correlator = matrix_count.log_sum_exp(log_correlators + entropies) - matrix_count.log_sum_exp(entropies)
-log_correlator_squared = matrix_count.log_sum_exp(2 * log_correlators + entropies) - matrix_count.log_sum_exp(
+log_correlator = mc.log_sum_exp(log_correlators + entropies) - mc.log_sum_exp(entropies)
+log_correlator_squared = mc.log_sum_exp(2 * log_correlators + entropies) - mc.log_sum_exp(
     entropies
 )
 log_correlator_std = 0.5 * (

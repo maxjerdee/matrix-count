@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from matrix_count._util import log_sum_exp
+from matrix_count._util import _log_sum_exp
 from matrix_count.sample import sample_symmetric_matrix
 
 # sample_symmetric_matrix
@@ -32,8 +32,8 @@ def test_sample_symmetric_matrix():
 
     # Expectations can be calculated as E[f(A)] = 1/(\sum_{A_i} 1/Q(A_i))\sum_{A_i} f(A_i)/Q(A_i)
     # where Q(A_i) = exp(-entropy(A_i))
-    log_correlator = log_sum_exp(log_correlators + entropies) - log_sum_exp(entropies)
-    log_correlator_squared = log_sum_exp(2 * log_correlators + entropies) - log_sum_exp(
+    log_correlator = _log_sum_exp(log_correlators + entropies) - _log_sum_exp(entropies)
+    log_correlator_squared = _log_sum_exp(2 * log_correlators + entropies) - _log_sum_exp(
         entropies
     )
     log_correlator_std = 0.5 * (

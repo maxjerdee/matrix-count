@@ -13,13 +13,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def log_symmetric_matrices_check_arguments(
+def _log_symmetric_matrices_check_arguments(
     row_sums: list[int] | ArrayLike,
     *,
     binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
     block_sums: ArrayLike | None = None,
+    block_diagonal_sums: ArrayLike | None = None,
     alpha: float = 1.0,
     force_second_order: bool = False,
     verbose: bool = False,
@@ -43,6 +44,9 @@ def log_symmetric_matrices_check_arguments(
     block_sums : ArrayLike, optional
         A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
+    block_diagonal_sums : ArrayLike, optional
+        A 1D (q,) array-like of non-negative integers representing the constrained sum of the diagonal elements of each block.
+        A value of None results in no block diagonal sum constraint, defaults to None.
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
@@ -74,7 +78,7 @@ def log_symmetric_matrices_check_arguments(
         assert diagonal_sum >= 0, "diagonal_sum must be greater than or equal to 0"
 
     if index_partition is not None:
-        assert isinstance(index_partition, list), "index_partition must be a list"
+        assert isinstance(index_partition, (list, np.ndarray)), "index_partition must be a list or np.array"
         assert all(
             isinstance(x, int) for x in index_partition
         ), "block_indices must be a list of integers greater than or equal to 1"
@@ -84,19 +88,34 @@ def log_symmetric_matrices_check_arguments(
 
         # Number of blocks
         q: int = np.max(index_partition)
-        if block_sums is not None:
-            assert isinstance(
-                block_sums, np.ndarray
-            ), "block_sums must be a NumPy array"
-            assert block_sums.ndim == 2, "block_sums must be a 2D array"
-            assert (
-                block_sums.shape[0] == block_sums.shape[1]
-            ), "block_sums must be a square array"
-            assert block_sums.shape == (q, q), "block_sums must have shape (q, q)"
-            assert block_sums.dtype == int, "block_sums must be of dtype int"
-            assert np.all(
-                block_sums >= 0
-            ), "All elements in block_sums must be non-negative integers"
+        assert block_sums is not None, "block_sums must be provided to impose a constraint with index_partition"
+        assert isinstance(
+            block_sums, np.ndarray
+        ), "block_sums must be a NumPy array"
+        assert block_sums.ndim == 2, "block_sums must be a 2D array"
+        assert (
+            block_sums.shape[0] == block_sums.shape[1]
+        ), "block_sums must be a square array"
+        assert block_sums.shape == (q, q), "block_sums must have shape (q, q)"
+        assert block_sums.dtype == int, "block_sums must be of dtype int"
+        assert np.all(
+            block_sums >= 0
+        ), "All elements in block_sums must be non-negative integers"
+        assert block_diagonal_sums is None or isinstance(
+            block_diagonal_sums, (list, np.ndarray)
+        ), "block_diagonal_sums must be a list or np.array"
+        if block_diagonal_sums is not None:
+            assert all(
+                isinstance(x, int) for x in block_diagonal_sums
+            ), "All elements in block_diagonal_sums must be integers"
+            assert all(
+                x >= 0 for x in block_diagonal_sums
+            ), "All elements in block_diagonal_sums must be non-negative integers"
+            assert len(block_diagonal_sums) == q, "block_diagonal_sums must have length q"
+            if diagonal_sum is not None:
+                assert (
+                    np.sum(block_diagonal_sums) == diagonal_sum
+                ), "The sum of block_diagonal_sums must equal diagonal_sum"
     else:
         assert (
             block_sums is None
@@ -110,13 +129,12 @@ def log_symmetric_matrices_check_arguments(
     assert isinstance(verbose, bool), "verbose must be a boolean"
 
 
-def simplify_input(
+def _symmetric_simplify_input(
     row_sums: list[int] | ArrayLike,
     *,
     binary_matrix: bool = False,
     diagonal_sum: int | None = None,
     index_partition: list[int] | None = None,
-    block_sums: ArrayLike | None = None,
     verbose: bool = False,
 ) -> tuple[
     ArrayLike,
@@ -140,9 +158,6 @@ def simplify_input(
         A list of length n of integers ranging from 1 to q.
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
-    block_sums : ArrayLike, optional
-        A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
-        A value of None results in no block sum constraint, defaults to None.
     verbose : bool, optional
         Whether to print details of calculation. Defaults to False.
 
@@ -161,12 +176,11 @@ def simplify_input(
                 [n - 1 - x for x in row_sums]
             )  # Flip all margins to the complement (n-1 possible nonzero entries in each row)
             # Possibly need to simplify again to remove zeros
-            return simplify_input(
+            return _symmetric_simplify_input(
                 row_sums,
                 binary_matrix=True,
                 diagonal_sum=diagonal_sum,
                 index_partition=index_partition,
-                block_sums=block_sums,
                 verbose=verbose,
             )
     # Remove instances where a row sum is 0
@@ -180,16 +194,17 @@ def simplify_input(
         # TODO: Remove the block_sums cases
         row_sums = row_sums[row_sums != 0]
 
-    return row_sums, diagonal_sum, index_partition, block_sums
+    return row_sums, diagonal_sum, index_partition
 
 
-def log_symmetric_matrices_hardcoded(
+def _log_symmetric_matrices_hardcoded(
     row_sums: list[int] | ArrayLike,
     *,
     binary_matrix: bool = False,
     diagonal_sum: int | None = None,
-    index_partition: list[int] | None = None,
+    index_partition: list[int] | ArrayLike | None = None,
     block_sums: ArrayLike | None = None,
+    block_diagonal_sums: ArrayLike | None = None,
     alpha: float = 1.0,
     verbose: bool = False,
 ) -> float | None:
@@ -205,13 +220,16 @@ def log_symmetric_matrices_hardcoded(
     diagonal_sum : int or None, optional
         What the sum of the diagonal elements should be constrained to.
         Either an integer greater than or equal to 0 or None, resulting in no constraint on the diagonal elements, defaults to None.
-    index_partition : list of int or None, optional
+    index_partition : ArrayLike of int or None, optional
         A list of length n of integers ranging from 1 to q.
         index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
         A value of None results in no block sum constraint, defaults to None.
     block_sums : ArrayLike, optional
-        A 2D (q, q) symmetric square NumPy array of non-negative integers representing the constrained sum of each block of the matrix.
+        A 2D (q, q) symmetric square array of non-negative integers representing the constrained sum of each block of the matrix.
         A value of None results in no block sum constraint, defaults to None.
+    block_diagonal_sums : ArrayLike | None = None,
+        A 1D (q,) array-like of non-negative integers representing the constrained sum of the diagonal elements of each block.
+        A value of None results in no block diagonal sum constraint, defaults to None.
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
@@ -237,9 +255,13 @@ def log_symmetric_matrices_hardcoded(
     n = len(row_sums)  # Matrix size
     if binary_matrix:
         # Check if the provided margin satisfies the Erdos-Gallai condition
-        if not _util.erdos_gallai_check(row_sums):
+        if not _util._erdos_gallai_check(row_sums):
             if verbose:
                 logger.info("No matrices satisfy the Erdos-Gallai condition")
+            return float("-inf")
+        if diagonal_sum is not None and diagonal_sum != 0:
+            if verbose:
+                logger.info("No matrices satisfy the diagonal sum condition for binary matrices")
             return float("-inf")
     else:
         if diagonal_sum is not None:
@@ -272,15 +294,18 @@ def log_symmetric_matrices_hardcoded(
         # TODO: Add explicit treatment of alpha = 0
         assert alpha > 0, "alpha must be greater than 0, alpha = 0 is not yet supported"
 
-        # TODO: Add the block sums case
-        assert index_partition is None, "block sum constraints are not yet supported"
-        assert block_sums is None, "block sum constraints are not yet supported"
+        # TODO: Add explicit treatment of alpha = inf, for which we can often find the exact answer.
+
+        if index_partition is not None:
+            # TODO: Add the hardcoded case for when diagonal_sum and block_sums are provided for binary_matrix=False, since there are
+            # some cases where we can detect that such conditions are impossible (although this will make more sense if we get around to implementing SIS for this case)
+            pass
 
     # Explicit case where each margin is 1 (0 entries have been removed), applies whether binary_matrix is True or False
     if matrix_total == n:
         if verbose:
             logger.info("Hardcoded case: each margin is 1")
         # Recursively can compute that there are n!/n!! possible matrices
-        return _util.log_factorial(n) - _util.log_factorial2(n)
+        return _util._log_factorial(n) - _util._log_factorial2(n)
 
     return None

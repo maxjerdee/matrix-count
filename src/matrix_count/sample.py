@@ -13,14 +13,13 @@ def sample_symmetric_matrix(
     *,
     binary_matrix: bool = False,
     diagonal_sum: int | None = None,
-    index_partition: list[int] | None = None,
-    block_sums: ArrayLike | None = None,
     alpha: float = 1.0,
     verbose: bool = False,
     seed: int | None = None,
 ) -> tuple[ArrayLike, float]:
     """
     Sample a symmetric matrix with given row sums and diagonal sum.
+    Not available for block_sums or index_partition arguments.
 
     Parameters
     ----------
@@ -30,13 +29,6 @@ def sample_symmetric_matrix(
         Whether the matrix is binary (0 or 1) instead of non-negative integer valued, defaults to False.
     diagonal_sum : int, optional
         Sum of the diagonal elements of the matrix.
-    index_partition : list of int or None, optional
-        A list of length n of integers ranging from 1 to q.
-        index_partition[i] indicates the block which index i belongs to for the purposes of a block sum constraint.
-        A value of None results in no block sum constraint, defaults to None.
-    block_sums : ArrayLike, optional
-        A 2D (q, q) symmetric square NumPy array of integers representing the constrained sum of each block of the matrix.
-        A value of None results in no block sum constraint, defaults to None.
     alpha : float, optional
         Dirichlet-multinomial parameter greater than or equal to 0 to weigh the matrices in the sum.
         A value of 1 gives the uniform count of matrices, defaults to 1.
@@ -52,19 +44,15 @@ def sample_symmetric_matrix(
     """
 
     # Check input validity
-    _input_output.log_symmetric_matrices_check_arguments(
+    _input_output._log_symmetric_matrices_check_arguments(
         row_sums,
         binary_matrix=binary_matrix,
         diagonal_sum=diagonal_sum,
-        index_partition=index_partition,
-        block_sums=block_sums,
         alpha=alpha,
         verbose=verbose,
     )
 
     # Notably we do not simplify these cases before passing to the c++ code, since then we would need to undo that simplification when returning samples.
-
-    # TODO: Implement the block_sums constraint and wrap here.
 
     diagonal_sum = (
         diagonal_sum if diagonal_sum is not None else -1

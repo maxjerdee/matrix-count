@@ -7,7 +7,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
-import matrix_count
+import matrix_count as mc
 from matrix_count import _util
 
 test_margin = [3, 3, 3, 3, 2, 2]
@@ -16,9 +16,9 @@ true_count = np.exp(7.51098) # Found with brute force
 num_samples = 10000
 
 # Estimate the number of matrices with given margins
-estimate_2 = matrix_count.estimate_log_symmetric_matrices(test_margin, force_second_order=True)
+estimate_2 = mc.estimate_log_symmetric_matrices(test_margin, force_second_order=True)
 
-estimate_3 = matrix_count.estimate_log_symmetric_matrices(test_margin)
+estimate_3 = mc.estimate_log_symmetric_matrices(test_margin)
 
 logEs = []
 log_count_err_ests = []
@@ -27,7 +27,7 @@ entropies = []
 for t in range(num_samples):
     if t % 100 == 0:
         pass
-    sample, entropy = matrix_count.sample_symmetric_matrix(test_margin)
+    sample, entropy = mc.sample_symmetric_matrix(test_margin)
     entropies.append(entropy)
     # log(Delta log E) = log(Delta E/E) = 1/2log(E2 - E^2) - 1/2 log(n) - log(E)
     logE2 = _util.log_sum_exp(2 * np.array(entropies)) - np.log(len(entropies))

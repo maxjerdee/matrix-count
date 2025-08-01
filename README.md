@@ -38,7 +38,7 @@ such matrices under combinations of the further conditions:
 - Fixed sum of entries in blocks of matrix. (number of edges between prescribed
   groups) [Not yet implemented]
 
-We also include methods for estimating the number of non-negative integer
+We also include methods for estimating the number of asymmetric integer
 matrices with a given row sum and column sum as described in
 [Jerdee, Kirkley, Newman (2022)](https://arxiv.org/abs/2209.14869). [Not
 yet implemented]
@@ -73,7 +73,7 @@ in the base directory.
 Once installed, the package can be imported as
 
 ```python
-import matrix_count
+import matrix_count as mc
 ```
 
 Note that this is not `import matrix-count`.
@@ -88,17 +88,17 @@ margin = [10, 9, 8, 7, 6, 5, 4, 3]
 
 # Estimate the logarithm of the number of symmetric matrices with given margin sum
 # (number of multigraphs with given degree sequence)
-estimate = matrix_count.estimate_log_symmetric_matrices(margin, alpha=1)
+estimate = mc.estimate_log_symmetric_matrices(margin)
 print("Estimated log count of symmetric matrices:", estimate)
 
 # Count the number of such matrices
-count, count_err = matrix_count.count_log_symmetric_matrices(margin, alpha=1)
+count, count_err = mc.count_log_symmetric_matrices(margin)
 print("Log count of symmetric matrices:", count, "+/-", count_err)
 
 # Sample from the space of such matrices
 num_samples = 3
 for _t in range(num_samples):
-    sample, entropy = matrix_count.sample_symmetric_matrix(margin)
+    sample, entropy = mc.sample_symmetric_matrix(margin)
     print("Sampled matrix:")
     print(sample)
     print("Minus log probability of sampled matrix:", entropy)
